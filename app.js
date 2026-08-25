@@ -1537,33 +1537,64 @@
     // Reliable Copy to Clipboard
     copyToClipboard(summaryText);
 
-    // Ultra-Clear & Bold Success Popup Modal
+    // Ultra-Clear & Bold Success Popup Modal (No Auto Redirect, Opens Instruction Popup)
     Swal.fire({
       icon: 'success',
       iconColor: '#22c55e',
       title: '<span style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">Pilihan Filter Berhasil Disalin!</span>',
       html: `
         <div class="my-2" style="color: #475569; font-size: 0.84rem; font-weight: 600; line-height: 1.45;">
-          Teks filter telah tersalin ke papan klip (*clipboard*).<br>
+          Teks format filter telah tersalin ke papan klip (*clipboard*).<br>
           <div class="mt-2 p-2 rounded" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.78rem; font-weight: 700;">
-            <i class="fa-solid fa-circle-check text-success me-1"></i> Siap dikirimkan ke WhatsApp Admin
+            <i class="fa-solid fa-paste me-1"></i> Tinggal tempel (copas) di chat WA Admin
           </div>
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: '<i class="fa-brands fa-whatsapp me-1"></i> Kirim Ke WA Admin',
+      confirmButtonText: '<i class="fa-brands fa-whatsapp me-1"></i> Petunjuk Copas Ke WA',
       cancelButtonText: 'Tutup',
-      confirmButtonColor: '#22c55e',
+      confirmButtonColor: '#334155',
       cancelButtonColor: '#64748b',
       customClass: {
         popup: 'swal2-popup-copy-success'
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        const encoded = encodeURIComponent(summaryText);
-        window.open(`https://wa.me/6282121512002?text=${encoded}`, '_blank');
+        showCopasInstructionModal(summaryText);
       }
     });
+
+    // Silent GAS Logger Call
+    submitLogToGAS({
+      versi: isBaru ? 'Versi Baru (New Viewer)' : 'Versi Lama (Classic / Feedback Studio)',
+      summaryText: summaryText,
+      userAgent: navigator.userAgent
+    });
+  }
+
+  // Instruction Popup Modal for Manual Pasting into WhatsApp
+  function showCopasInstructionModal(summaryText) {
+    Swal.fire({
+      title: '<span style="font-size: 1.05rem; font-weight: 800; color: #1e293b;"><i class="fa-brands fa-whatsapp text-success me-1"></i> Cara Tempel (Copas) ke WA Admin</span>',
+      html: `
+        <div class="text-start my-2" style="font-size: 0.84rem; color: #334155; line-height: 1.5;">
+          <div class="p-2 px-3 rounded mb-2" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;">
+            <strong><i class="fa-solid fa-clipboard-check me-1"></i> Langkah Mudah:</strong><br>
+            1. Buka ruang chat WhatsApp Admin Anda.<br>
+            2. Tekan & tahan (atau klik kanan) di kolom pesan WA.<br>
+            3. Pilih <strong>Tempel (Paste)</strong>, lalu tekan Kirim.
+          </div>
+          <div class="fw-bold mb-1 text-muted" style="font-size: 0.76rem;">Pratinjau Teks Yang Tersalin:</div>
+          <div class="p-2 rounded border bg-light font-monospace text-dark" style="font-size: 0.74rem; max-height: 95px; overflow-y: auto; white-space: pre-wrap;">${escapeHtmlAttr(summaryText)}</div>
+        </div>
+      `,
+      confirmButtonText: '<i class="fa-solid fa-check me-1"></i> Mengerti, Siap Copas',
+      confirmButtonColor: '#334155',
+      customClass: {
+        popup: 'swal2-popup-copy-success'
+      }
+    });
+  }
 
     // Silent GAS Logger Call
     submitLogToGAS({
