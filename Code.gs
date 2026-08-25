@@ -1,6 +1,6 @@
 /**
  * Turnitin Filter Selector - Google Apps Script Backend
- * Developed by Sniftyska x Sniftytool
+ * Developed by Sniftyska x Sniftytools
  */
 
 /**
@@ -11,7 +11,7 @@
 function doGet(e) {
   var template = HtmlService.createTemplateFromFile('Index');
   var output = template.evaluate()
-    .setTitle('Turnitin Filter Selector | Sniftyska x Sniftytool')
+    .setTitle('Turnitin Filter Selector | Sniftyska x Sniftytools')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   return output;
