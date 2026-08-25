@@ -140,6 +140,31 @@
       btnOpenAdminPanel.addEventListener('click', handleOpenAdminModal);
     }
 
+    // Toggle Guide Section (Panduan & Penjelasan)
+    const btnToggleGuide = document.getElementById('btnToggleGuide');
+    const guideSectionCard = document.getElementById('guideSectionCard');
+    const iconGuideChevron = document.getElementById('iconGuideChevron');
+
+    if (btnToggleGuide && guideSectionCard) {
+      btnToggleGuide.addEventListener('click', () => {
+        const isShown = guideSectionCard.classList.contains('show');
+        if (isShown) {
+          guideSectionCard.classList.remove('show');
+          if (iconGuideChevron) {
+            iconGuideChevron.className = 'fa-solid fa-chevron-down ms-1';
+          }
+        } else {
+          guideSectionCard.classList.add('show');
+          if (iconGuideChevron) {
+            iconGuideChevron.className = 'fa-solid fa-chevron-up ms-1 text-primary';
+          }
+          setTimeout(() => {
+            guideSectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      });
+    }
+
     // Listen to Bootstrap collapse show/hide events to persist open accordion item in localStorage
     document.addEventListener('shown.bs.collapse', function (e) {
       if (e.target && e.target.id) {
@@ -768,7 +793,7 @@
 
     if (isBaru) {
       const savedVB = localStorage.getItem('activeGuideVB');
-      const activeVB = (savedVB !== null && savedVB !== '') ? savedVB : 'collapseVB_Biblio';
+      const activeVB = (savedVB !== null) ? savedVB : '';
 
       container.innerHTML = `
         <div class="accordion guide-accordion" id="accordionGuideVB">
@@ -946,7 +971,7 @@
       `;
     } else {
       const savedVL = localStorage.getItem('activeGuideVL');
-      const activeVL = (savedVL !== null && savedVL !== '') ? savedVL : 'collapseVL_Quotes';
+      const activeVL = (savedVL !== null) ? savedVL : '';
 
       container.innerHTML = `
         <div class="accordion guide-accordion" id="accordionGuideVL">
@@ -1153,10 +1178,10 @@
 
       <!-- 4. Exclude Small Matches (Words ONLY for Versi Baru!) -->
       <div class="filter-card filter-card-matches filter-card-vb ${data.matchesMode !== 'Off' ? 'active' : ''}" style="cursor: default;">
-        <div class="filter-card-header">
+        <div class="filter-card-header align-items-center">
           <div class="filter-info">
             <div class="filter-icon-box"><i class="fa-solid fa-filter"></i></div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
               <div class="filter-title">Exclude Small Matches</div>
               <div class="filter-subtext">Abaikan kecocokan kecil (word)</div>
             </div>
@@ -1168,11 +1193,11 @@
         </div>
 
         <div class="custom-input-box ${data.matchesMode === 'Words' ? 'show' : ''}" id="boxVBMatches">
-          <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
-            <label class="form-label font-semibold mb-0 text-nowrap" style="font-size: 0.72rem; color: #475569;">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <label class="form-label font-semibold mb-0" style="font-size: 0.72rem; color: #475569;">
               Minimum Words: <span id="iconVBStatus"></span>
             </label>
-            <div class="input-group input-group-sm" style="width: 118px; flex-shrink: 0;">
+            <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
               <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : '8'}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">Words</span>
             </div>
@@ -1259,7 +1284,7 @@
         <div class="filter-card-header">
           <div class="filter-info">
             <div class="filter-icon-box"><i class="fa-solid fa-quote-right"></i></div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
               <div class="filter-title">Exclude Quotes</div>
               <div class="filter-subtext">Sembunyikan teks dalam tanda kutip ("...")</div>
             </div>
@@ -1275,7 +1300,7 @@
         <div class="filter-card-header">
           <div class="filter-info">
             <div class="filter-icon-box"><i class="fa-solid fa-book-bookmark"></i></div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
               <div class="filter-title">Exclude Bibliography</div>
               <div class="filter-subtext">Sembunyikan Daftar Pustaka / Referensi</div>
             </div>
@@ -1288,29 +1313,27 @@
 
       <!-- 3. Exclude Matches (% or Words) -->
       <div class="filter-card filter-card-vl ${data.matchesMode !== 'Off' ? 'active' : ''}" style="cursor: default;">
-        <div class="filter-card-header">
-          <div class="filter-info w-100 mb-0">
+        <div class="filter-card-header align-items-center">
+          <div class="filter-info">
             <div class="filter-icon-box"><i class="fa-solid fa-filter"></i></div>
-            <div class="flex-grow-1 overflow-hidden">
-              <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
-                <div class="filter-title text-nowrap mb-0">Exclude Matches</div>
-                <div class="matches-pill-group flex-shrink-0">
-                  <button type="button" class="matches-pill-btn ${data.matchesMode === 'Off' ? 'active' : ''}" id="btnVLPillOff">Off</button>
-                  <button type="button" class="matches-pill-btn ${data.matchesMode === '%' ? 'active' : ''}" id="btnVLPillPercent">%</button>
-                  <button type="button" class="matches-pill-btn ${data.matchesMode === 'Words' ? 'active' : ''}" id="btnVLPillWords">Words</button>
-                </div>
-              </div>
-              <div class="filter-subtext mt-1">${subtextVL}</div>
+            <div style="min-width: 0; flex: 1;">
+              <div class="filter-title">Exclude Matches</div>
+              <div class="filter-subtext">${subtextVL}</div>
             </div>
+          </div>
+          <div class="matches-pill-group">
+            <button type="button" class="matches-pill-btn ${data.matchesMode === 'Off' ? 'active' : ''}" id="btnVLPillOff">Off</button>
+            <button type="button" class="matches-pill-btn ${data.matchesMode === '%' ? 'active' : ''}" id="btnVLPillPercent">%</button>
+            <button type="button" class="matches-pill-btn ${data.matchesMode === 'Words' ? 'active' : ''}" id="btnVLPillWords">Words</button>
           </div>
         </div>
 
         <div class="custom-input-box ${data.matchesMode !== 'Off' ? 'show' : ''}" id="boxVLMatches">
-          <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
-            <label class="form-label font-semibold mb-0 text-nowrap" style="font-size: 0.72rem; color: #475569;">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <label class="form-label font-semibold mb-0" style="font-size: 0.72rem; color: #475569;">
               ${data.matchesMode === '%' ? 'Minimum Persentase:' : 'Minimum Words:'} <span id="iconVLStatus"></span>
             </label>
-            <div class="input-group input-group-sm" style="width: 118px; flex-shrink: 0;">
+            <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
               <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue || (data.matchesMode === '%' ? '1' : '10')}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">${data.matchesMode === '%' ? '%' : 'Words'}</span>
             </div>

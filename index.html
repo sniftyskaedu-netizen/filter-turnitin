@@ -100,14 +100,16 @@
 
     </div>
 
-    <!-- Visual Section Divider Line -->
+    <!-- Visual Section Divider Line & Interactive Trigger Badge -->
     <div class="section-divider-wrap">
       <hr class="section-divider-line">
-      <span class="section-divider-badge"><i class="fa-solid fa-book-open me-1"></i> Panduan & Penjelasan</span>
+      <button type="button" class="section-divider-badge" id="btnToggleGuide" title="Klik untuk menampilkan / menyembunyikan Panduan & Penjelasan">
+        <i class="fa-solid fa-book-open me-1 text-indigo"></i> Panduan & Penjelasan <i class="fa-solid fa-chevron-down ms-1" id="iconGuideChevron"></i>
+      </button>
     </div>
 
-    <!-- 6. Section Accordion: Penjelasan Filter (Dinamis Sesuai Versi Active) -->
-    <div class="section-card section-guide-card">
+    <!-- 6. Section Accordion: Penjelasan Filter (Dinamis Sesuai Versi Active) - Hidden by default (Collapse) -->
+    <div class="section-card section-guide-card collapse" id="guideSectionCard">
       <h3 class="section-title-sm mb-3"
         style="font-size: clamp(1.05rem, 4vw, 1.18rem); font-weight: 800; color: #1e293b;">
         <span><i class="fa-solid fa-circle-question text-indigo me-2"></i> Penjelasan Filter Turnitin</span>
@@ -129,7 +131,6 @@
 
   <!-- Application Custom Script -->
   <script src="app.js"></script>
-  \
 </body>
 
 </html>

@@ -61,7 +61,8 @@
         <div class="brand-badge" style="font-size: 0.68rem; padding: 2px 7px;">
           <i class="fa-solid fa-shield-halved"></i> Panel Administrator
         </div>
-        <a href="index.html" id="btnBackToWebsite" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="font-size: 0.76rem;">
+        <a href="index.html" id="btnBackToWebsite" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold"
+          style="font-size: 0.76rem;">
           <i class="fa-solid fa-house me-1"></i> Ke Website Utama
         </a>
       </div>
@@ -280,30 +281,36 @@
           <div class="tab-pane fade" id="adminTabChat" role="tabpanel">
             <div class="admin-card-section">
               <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
-                <i class="fa-solid fa-comments text-success me-1"></i> Kustomisasi Template Chat Saat Disalin (Salin Filter)
+                <i class="fa-solid fa-comments text-success me-1"></i> Kustomisasi Template Chat Saat Disalin (Salin
+                Filter)
               </h5>
 
-              <div class="alert alert-info py-2 px-3 mb-3 fs-8" style="font-size: 0.76rem; background: #f0f9ff; border-color: #bae6fd; color: #0369a1;">
-                <i class="fa-solid fa-circle-info me-1"></i> Atur format teks yang akan otomatis tersalin ke clipboard saat pengunjung mengklik tombol <strong>"Salin Teks Filter"</strong> di website utama.
+              <div class="alert alert-info py-2 px-3 mb-3 fs-8"
+                style="font-size: 0.76rem; background: #f0f9ff; border-color: #bae6fd; color: #0369a1;">
+                <i class="fa-solid fa-circle-info me-1"></i> Atur format teks yang akan otomatis tersalin ke clipboard
+                saat pengunjung mengklik tombol <strong>"Salin Teks Filter"</strong> di website utama.
               </div>
 
               <!-- Sub-tabs for Versi Baru vs Versi Lama Template Chat -->
               <ul class="nav nav-tabs mb-3" id="chatSubTab" role="tablist">
                 <li class="nav-item">
-                  <button class="nav-link active py-1 px-3 fs-8 fw-bold" id="chat-subtab-vb-btn" data-bs-toggle="tab" data-bs-target="#chat-subtab-vb" type="button">Versi Baru (New Viewer)</button>
+                  <button class="nav-link active py-1 px-3 fs-8 fw-bold" id="chat-subtab-vb-btn" data-bs-toggle="tab"
+                    data-bs-target="#chat-subtab-vb" type="button">Versi Baru (New Viewer)</button>
                 </li>
                 <li class="nav-item">
-                  <button class="nav-link py-1 px-3 fs-8 fw-bold" id="chat-subtab-vl-btn" data-bs-toggle="tab" data-bs-target="#chat-subtab-vl" type="button">Versi Lama (Feedback Studio)</button>
+                  <button class="nav-link py-1 px-3 fs-8 fw-bold" id="chat-subtab-vl-btn" data-bs-toggle="tab"
+                    data-bs-target="#chat-subtab-vl" type="button">Versi Lama (Feedback Studio)</button>
                 </li>
               </ul>
 
               <div class="tab-content" id="chatSubTabContent">
-                
+
                 <!-- SUB-TAB VB -->
                 <div class="tab-pane fade show active" id="chat-subtab-vb" role="tabpanel">
                   <div class="admin-field-group mb-2">
                     <label class="admin-label" style="font-size: 0.78rem;">Template Chat Versi Baru:</label>
-                    <textarea id="adminChatTemplateVB" class="form-control admin-input-custom target-chat-textarea" rows="5" placeholder="Masukkan format template chat..."></textarea>
+                    <textarea id="adminChatTemplateVB" class="form-control admin-input-custom target-chat-textarea"
+                      rows="5" placeholder="Masukkan format template chat..."></textarea>
                   </div>
                 </div>
 
@@ -311,7 +318,8 @@
                 <div class="tab-pane fade" id="chat-subtab-vl" role="tabpanel">
                   <div class="admin-field-group mb-2">
                     <label class="admin-label" style="font-size: 0.78rem;">Template Chat Versi Lama:</label>
-                    <textarea id="adminChatTemplateVL" class="form-control admin-input-custom target-chat-textarea" rows="5" placeholder="Masukkan format template chat..."></textarea>
+                    <textarea id="adminChatTemplateVL" class="form-control admin-input-custom target-chat-textarea"
+                      rows="5" placeholder="Masukkan format template chat..."></textarea>
                   </div>
                 </div>
 
@@ -320,25 +328,37 @@
               <!-- Format Helper Toolbar for Chat Variables -->
               <div class="mt-2 p-2 rounded bg-light border">
                 <div class="fw-bold mb-1" style="font-size: 0.76rem; color: #334155;">
-                  <i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Variabel Kode Cepat (Klik untuk menyisipkan ke template):
+                  <i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Variabel Kode Cepat (Klik untuk
+                  menyisipkan ke template):
                 </div>
                 <div class="format-chips-wrapper mb-2">
-                  <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{versi}"><code>{versi}</code> Nama Versi</button>
-                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{biblio}"><code>{biblio}</code> Exclude Bibliography</button>
-                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{quotes}"><code>{quotes}</code> Exclude Quotes</button>
-                  <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{cited}"><code>{cited}</code> Exclude Cited</button>
-                  <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{matches}"><code>{matches}</code> Exclude Matches</button>
-                  <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{waktu}"><code>{waktu}</code> Waktu/Tanggal</button>
-                  <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{footer}"><code>{footer}</code> Footer Brand</button>
+                  <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{versi}"><code>{versi}</code> Nama Versi</button>
+                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{biblio}"><code>{biblio}</code> Exclude Bibliography</button>
+                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{quotes}"><code>{quotes}</code> Exclude Quotes</button>
+                  <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{cited}"><code>{cited}</code> Exclude Cited</button>
+                  <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{matches}"><code>{matches}</code> Exclude Matches</button>
+                  <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{waktu}"><code>{waktu}</code> Waktu/Tanggal</button>
+                  <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fs-8 fw-bold btn-chat-var-tag"
+                    data-var="{footer}"><code>{footer}</code> Footer Brand</button>
                 </div>
 
                 <!-- Live Preview Box for Chat -->
-                <div class="mt-2 p-2 px-3 rounded border" style="background: #e5ddd5; border-color: #cbd5e1 !important;">
-                  <div class="fw-bold mb-1 d-flex align-items-center justify-content-between" style="font-size: 0.75rem; color: #075e54;">
+                <div class="mt-2 p-2 px-3 rounded border"
+                  style="background: #e5ddd5; border-color: #cbd5e1 !important;">
+                  <div class="fw-bold mb-1 d-flex align-items-center justify-content-between"
+                    style="font-size: 0.75rem; color: #075e54;">
                     <span><i class="fa-solid fa-eye me-1"></i> Pratinjau Tampilan Chat (WhatsApp Style Preview):</span>
                     <span class="badge bg-success" style="font-size: 0.65rem;">WhatsApp Style</span>
                   </div>
-                  <div class="p-2 rounded shadow-sm" style="background: #ffffff; border-radius: 8px; font-family: sans-serif; white-space: pre-wrap; font-size: 0.78rem; color: #111b21; line-height: 1.4;" id="liveChatPreview"></div>
+                  <div class="p-2 rounded shadow-sm"
+                    style="background: #ffffff; border-radius: 8px; font-family: sans-serif; white-space: pre-wrap; font-size: 0.78rem; color: #111b21; line-height: 1.4;"
+                    id="liveChatPreview"></div>
                 </div>
               </div>
 

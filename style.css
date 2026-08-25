@@ -55,6 +55,10 @@ body {
   padding-top: 12px !important;
   padding-bottom: 28px !important;
   box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
 }
 
 /* Header Styling - Soft Slate Gray */
@@ -432,8 +436,8 @@ body {
   background: #ffffff;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
-  padding: 34px 24px;
-  margin-bottom: 14px;
+  padding: 32px 24px 36px 24px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow-sm);
   width: 100% !important;
   overflow: hidden !important;
@@ -444,7 +448,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 36px;
+  margin-top: auto !important;
+  padding-top: 36px;
   margin-bottom: 20px;
   position: relative;
   width: 100%;
@@ -460,24 +465,51 @@ body {
 
 .section-divider-badge {
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   background: #ffffff;
-  padding: 4px 14px;
+  padding: 6px 18px;
   border-radius: 20px;
   border: 1px solid #cbd5e1;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #334155;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
   white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.section-divider-badge:hover {
+  background: #f8fafc;
+  border-color: #334155;
+  color: #0f172a;
+  transform: translateX(-50%) scale(1.04);
+  box-shadow: 0 4px 12px rgba(51, 65, 85, 0.12);
+}
+
+.section-divider-badge:active {
+  transform: translateX(-50%) scale(0.98);
 }
 
 .section-guide-card {
-  margin-top: 10px !important;
+  margin-top: 12px !important;
+  transition: all 0.3s ease;
+}
+
+.section-guide-card.collapse:not(.show) {
+  display: none !important;
 }
 
 @media (max-width: 576px) {
   .section-divider-wrap {
-    margin-top: 28px;
+    margin-top: auto !important;
+    padding-top: 28px;
     margin-bottom: 16px;
   }
 
@@ -498,7 +530,7 @@ body {
   gap: 6px;
 }
 
-/* Interactive Filter Cards - Absolutely Stationary (No Shift/Movement) */
+/* Compact Interactive Filter Cards */
 .filter-card,
 .filter-card:hover,
 .filter-card:active,
@@ -506,8 +538,8 @@ body {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-md);
-  padding: 22px 18px;
-  margin-bottom: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
   position: relative;
@@ -529,16 +561,16 @@ body {
   outline: none !important;
 }
 
-/* Roomier Filter Cards for Versi Baru */
+/* Compact Filter Cards for Versi Baru */
 .filter-card-vb {
-  padding: 14px 16px !important;
-  margin-bottom: 10px !important;
+  padding: 9px 12px !important;
+  margin-bottom: 7px !important;
 }
 
-/* Extra-Spacious Filter Cards for Versi Lama */
+/* Compact Filter Cards for Versi Lama */
 .filter-card-vl {
-  padding: 24px 22px !important;
-  margin-bottom: 16px !important;
+  padding: 9px 12px !important;
+  margin-bottom: 7px !important;
 }
 
 .filter-card-header {
@@ -554,20 +586,20 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
-  min-width: 140px;
+  flex: 1 1 0%;
+  min-width: 0;
 }
 
 .filter-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: #f1f5f9;
   color: var(--primary-navy);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   flex-shrink: 0;
 }
 
@@ -713,24 +745,26 @@ body {
   transform: scale(0.96);
 }
 
-/* Submit Button - Soft Slate Gray */
+/* Submit Button - Soft Slate Gray (Wide & Prominent CTA) */
 .btn-submit {
   background: #334155;
   color: #ffffff;
   font-weight: 700;
-  font-size: clamp(0.86rem, 3.3vw, 0.94rem);
-  padding: 10px 14px;
-  min-height: 42px;
+  font-size: clamp(0.9rem, 3.5vw, 1rem);
+  padding: 14px 24px;
+  min-height: 52px;
   border-radius: var(--radius-md);
   border: none;
   width: 100% !important;
-  box-shadow: 0 3px 10px rgba(51, 65, 85, 0.2);
+  box-shadow: 0 4px 14px rgba(51, 65, 85, 0.25);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+  letter-spacing: 0.2px;
+  margin-top: 18px !important;
 }
 
 .btn-submit:hover {
@@ -993,11 +1027,46 @@ body {
   }
 
   .section-card {
-    padding: 22px 18px !important;
+    padding: 24px 16px 28px 16px !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
+  }
+
+  .filter-card {
+    padding: 12px 10px !important;
+  }
+
+  .filter-card-header {
+    gap: 6px !important;
+  }
+
+  .filter-info {
+    min-width: 0 !important;
+    flex: 1 1 0% !important;
+  }
+
+  .filter-title {
+    font-size: 0.86rem !important;
+    word-break: break-word !important;
+  }
+
+  .filter-subtext {
+    font-size: 0.74rem !important;
+    word-break: break-word !important;
+  }
+
+  .matches-pill-group {
+    padding: 2px !important;
+    gap: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .matches-pill-btn {
+    padding: 2px 6px !important;
+    font-size: 0.68rem !important;
+    min-height: 25px !important;
   }
 
   .dashboard-panel-card {
