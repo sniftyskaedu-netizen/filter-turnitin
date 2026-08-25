@@ -1537,17 +1537,32 @@
     // Reliable Copy to Clipboard
     copyToClipboard(summaryText);
 
-    // Toast Notification
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 2500,
-      timerProgressBar: true
-    });
-    Toast.fire({
+    // Ultra-Clear & Bold Success Popup Modal
+    Swal.fire({
       icon: 'success',
-      title: 'Tersalin di papan klip'
+      iconColor: '#22c55e',
+      title: '<span style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">Pilihan Filter Berhasil Disalin!</span>',
+      html: `
+        <div class="my-2" style="color: #475569; font-size: 0.84rem; font-weight: 600; line-height: 1.45;">
+          Teks filter telah tersalin ke papan klip (*clipboard*).<br>
+          <div class="mt-2 p-2 rounded" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.78rem; font-weight: 700;">
+            <i class="fa-solid fa-circle-check text-success me-1"></i> Siap dikirimkan ke WhatsApp Admin
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-brands fa-whatsapp me-1"></i> Kirim Ke WA Admin',
+      cancelButtonText: 'Tutup',
+      confirmButtonColor: '#22c55e',
+      cancelButtonColor: '#64748b',
+      customClass: {
+        popup: 'swal2-popup-copy-success'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const encoded = encodeURIComponent(summaryText);
+        window.open(`https://wa.me/6282121512002?text=${encoded}`, '_blank');
+      }
     });
 
     // Silent GAS Logger Call
