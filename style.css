@@ -881,6 +881,18 @@ body {
   word-break: break-word;
 }
 
+.footer-link {
+  color: #334155;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.15s ease, text-decoration 0.15s ease;
+}
+
+.footer-link:hover {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
 /* Ultra-Aesthetic SweetAlert2 & Toast Overrides */
 .swal2-popup {
   border-radius: 16px !important;
