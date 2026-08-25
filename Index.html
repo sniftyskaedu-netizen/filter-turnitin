@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turnitin Filter Selector | Sniftyska x Sniftytools</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+
+  <!-- Application Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. Header Card -->
+    <header class="header-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="brand-badge">
+          <i class="fa-solid fa-bolt"></i> Sniftyska x Sniftytool
+        </div>
+        <button type="button" class="btn-admin-trigger" id="btnOpenAdminPanel" title="Panel Pengaturan Admin">
+          <i class="fa-solid fa-gear"></i> Admin
+        </button>
+      </div>
+      <h1 class="header-title" id="headerTitleEl">
+        <i class="fa-solid fa-sliders text-warning"></i> Turnitin Filter Selector
+      </h1>
+      <p class="header-subtitle" id="headerSubtitleEl">
+        Sesuaikan opsi filter dengan regulasi instansi atau kampus masing-masing secara akurat dan praktis.
+      </p>
+    </header>
+
+    <!-- 2. Marquee Announcement Banner -->
+    <div class="marquee-container">
+      <div class="marquee-badge">
+        <i class="fa-solid fa-bullhorn"></i> PENTING
+      </div>
+      <div class="marquee-content">
+        <span class="marquee-text" id="marqueeTextEl">📢 Filter umum yang digunakan yaitu <strong>Filter
+            Bibliography</strong>, sesuaikan
+          Filter yang dipakai instansi masing-masing. ⚠️ <em>Beda filter = beda hasil.</em></span>
+      </div>
+    </div>
+
+    <!-- 3. Versi Turnitin Swift Selector (Compact 1-Line Switch Bar) -->
+    <div class="swift-version-card">
+      <div class="swift-version-left">
+        <i class="fa-solid fa-desktop text-indigo me-1"></i>
+        <span>Versi Turnitin:</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="swift-segmented">
+          <button type="button" class="swift-btn active" id="btnVersiBaru">
+            Versi Baru
+          </button>
+          <button type="button" class="swift-btn" id="btnVersiLama">
+            Versi Lama
+          </button>
+        </div>
+        <button type="button" class="btn-preview-icon" id="btnPreviewReport"
+          title="Lihat contoh gambar tampilan hasil Turnitin">
+          <i class="fa-solid fa-image"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4. Area Opsi Filter Turnitin (Dynamic Container) -->
+    <div class="section-card">
+      <div class="section-title-sm">
+        <span><i class="fa-solid fa-filter me-1 text-indigo"></i> Filter Turnitin</span>
+        <button type="button" class="btn-off-all" id="btnResetAll" title="Matikan semua filter dalam 1 klik">
+          <i class="fa-solid fa-power-off me-1"></i> Off Semua
+        </button>
+      </div>
+
+      <!-- Dynamic Filter Cards HTML Target -->
+      <div id="dynamicFilterCards"></div>
+
+      <!-- 5. Submit Action Button -->
+      <button type="button" class="btn-submit mt-3" id="btnSubmit">
+        <i class="fa-solid fa-copy fs-5"></i> Salin dan kirim ke whatsapp admin
+      </button>
+
+    </div>
+
+    <!-- Visual Section Divider Line -->
+    <div class="section-divider-wrap">
+      <hr class="section-divider-line">
+      <span class="section-divider-badge"><i class="fa-solid fa-book-open me-1"></i> Panduan & Penjelasan</span>
+    </div>
+
+    <!-- 6. Section Accordion: Penjelasan Filter (Dinamis Sesuai Versi Active) -->
+    <div class="section-card section-guide-card">
+      <h3 class="section-title-sm mb-3"
+        style="font-size: clamp(1.05rem, 4vw, 1.18rem); font-weight: 800; color: #1e293b;">
+        <span><i class="fa-solid fa-circle-question text-indigo me-2"></i> Penjelasan Filter Turnitin</span>
+      </h3>
+      <div id="guideAccordionContainer"></div>
+    </div>
+
+    <!-- 7. Footer Branding -->
+    <footer class="app-footer">
+      2020 © Sniftyska x Sniftytool | All Rights Reserved.
+    </footer>
+
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+
+  <!-- Application Custom Script -->
+  <script src="app.js"></script>
+  \
+</body>
+
+</html>

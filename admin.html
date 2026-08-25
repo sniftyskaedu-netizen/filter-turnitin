@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pengaturan Admin | Turnitin Filter Selector</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+
+  <!-- Application Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .admin-page-container {
+      max-width: 860px !important;
+      margin: 0 auto;
+      padding: 14px 12px 36px 12px;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+      max-width: 380px;
+      margin: 30px auto;
+    }
+
+    .dashboard-panel-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 18px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="admin-page-container">
+
+    <!-- Header Navigation Bar -->
+    <header class="header-card mb-3" style="padding: 22px 18px;">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="brand-badge" style="font-size: 0.68rem; padding: 2px 7px;">
+          <i class="fa-solid fa-shield-halved"></i> Panel Administrator
+        </div>
+        <a href="index.html" id="btnBackToWebsite" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" style="font-size: 0.76rem;">
+          <i class="fa-solid fa-house me-1"></i> Ke Website Utama
+        </a>
+      </div>
+      <h1 class="header-title mt-2 mb-1" style="font-size: clamp(1.05rem, 3.8vw, 1.35rem);">
+        <i class="fa-solid fa-sliders text-warning me-2"></i> Pengaturan Aplikasi Filter
+      </h1>
+      <p class="header-subtitle mb-0" style="font-size: clamp(0.74rem, 2.5vw, 0.8rem);">
+        Kelola saklar versi Turnitin, ubah teks website, upload galeri contoh laporan, dan atur PIN keamanan secara
+        mandiri.
+      </p>
+    </header>
+
+    <!-- SECTION 1: PIN Authentication Card -->
+    <div id="authSection" class="auth-card text-center" style="display: block;">
+      <div class="mx-auto mb-2"
+        style="width: 48px; height: 48px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 1px solid #bfdbfe;">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h4 class="fw-bold text-dark mb-1" style="font-size: 1.05rem;">Autentikasi Akses Admin</h4>
+      <p class="text-muted mb-3" style="font-size: 0.78rem;">Masukkan PIN Admin untuk masuk ke dashboard pengaturan.</p>
+
+      <form id="pinInputForm">
+        <div class="mb-3">
+          <input type="password" id="adminPinField" class="form-control pin-input-aesthetic py-2 mx-auto" maxlength="10"
+            placeholder="••••" style="max-width: 210px; font-size: 1.15rem !important;" autofocus autocomplete="off">
+        </div>
+        <div id="authErrorMessage" class="alert alert-danger py-1 fs-8 fw-bold mb-3"
+          style="display: none; font-size: 0.75rem;"></div>
+        <button type="submit" class="btn btn-dark w-100 py-2 font-bold rounded-3 shadow-sm"
+          style="background: #334155; border: none; min-height: 38px; font-size: 0.82rem;">
+          <i class="fa-solid fa-key me-1"></i> Masuk Dashboard Admin
+        </button>
+      </form>
+    </div>
+
+    <!-- SECTION 2: Full Admin Dashboard Panel -->
+    <div id="dashboardSection" style="display: none;">
+
+      <div class="dashboard-panel-card">
+
+        <!-- Tab Navigation Bar -->
+        <div class="admin-tab-wrapper">
+          <ul class="nav nav-pills admin-tab-nav" id="adminTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-versi-link" data-bs-toggle="pill" data-bs-target="#adminTabVersi"
+                type="button" role="tab">
+                <i class="fa-solid fa-toggle-on me-1"></i> Kontrol Versi
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-teks-link" data-bs-toggle="pill" data-bs-target="#adminTabTeks"
+                type="button" role="tab">
+                <i class="fa-solid fa-pen me-1"></i> Teks Website
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-chat-link" data-bs-toggle="pill" data-bs-target="#adminTabChat"
+                type="button" role="tab">
+                <i class="fa-solid fa-comments me-1"></i> Template Chat
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-img-link" data-bs-toggle="pill" data-bs-target="#adminTabImg"
+                type="button" role="tab">
+                <i class="fa-solid fa-image me-1"></i> Gambar Laporan
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-pin-link" data-bs-toggle="pill" data-bs-target="#adminTabPin"
+                type="button" role="tab">
+                <i class="fa-solid fa-key me-1"></i> Keamanan PIN
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tab Content Areas -->
+        <div class="tab-content" id="adminTabContent">
+
+          <!-- TAB 1: KONTROL VERSI TURNITIN -->
+          <div class="tab-pane fade show active" id="adminTabVersi" role="tabpanel">
+            <div class="admin-card-section">
+              <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-toggle-on text-primary me-1"></i> Saklar Tampilan Versi Turnitin (On/Off)
+              </h5>
+
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <div class="p-3 rounded border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <div class="form-check form-switch m-0 p-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input m-0" type="checkbox" id="adminEnableVB"
+                          style="cursor: pointer; width: 38px; height: 20px;">
+                        <label class="form-check-label fw-bold text-dark" for="adminEnableVB"
+                          style="cursor: pointer; font-size: 0.84rem;">Tampilkan Versi Baru (New Viewer)</label>
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.74rem; line-height: 1.35;">Aktifkan opsi
+                      filter versi terbaru dengan ambang minimal 8 Words.</small>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <div class="p-3 rounded border bg-light h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                      <div class="form-check form-switch m-0 p-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input m-0" type="checkbox" id="adminEnableVL"
+                          style="cursor: pointer; width: 38px; height: 20px;">
+                        <label class="form-check-label fw-bold text-dark" for="adminEnableVL"
+                          style="cursor: pointer; font-size: 0.84rem;">Tampilkan Versi Lama (Feedback Studio)</label>
+                      </div>
+                    </div>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.74rem; line-height: 1.35;">Aktifkan opsi
+                      filter versi lama (Feedback Studio Classic).</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-2 px-3 rounded bg-light border mt-3"
+                style="font-size: 0.76rem; color: #475569; line-height: 1.4;">
+                <i class="fa-solid fa-circle-info text-primary me-1"></i> <strong>Catatan:</strong> Jika salah satu
+                versi di-off-kan, tombol versi tersebut otomatis disembunyikan dari pengunjung.
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: EDIT TEKS WEBSITE -->
+          <div class="tab-pane fade" id="adminTabTeks" role="tabpanel">
+            <div class="admin-card-section">
+              <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-pen-to-square text-success me-1"></i> Teks Website & Banner Running
+              </h5>
+
+              <div class="admin-field-group mb-2">
+                <label class="admin-label" style="font-size: 0.78rem;">Judul Utama Header:</label>
+                <input type="text" id="adminHeaderTitle" class="form-control admin-input-custom">
+              </div>
+
+              <div class="admin-field-group mb-2">
+                <label class="admin-label" style="font-size: 0.78rem;">Sub-Judul Header:</label>
+                <input type="text" id="adminHeaderSubtitle" class="form-control admin-input-custom">
+              </div>
+
+              <div class="admin-field-group mb-0">
+                <label class="admin-label" style="font-size: 0.78rem;">Teks Running Banner (Running Text):</label>
+                <textarea id="adminMarqueeText" class="form-control admin-input-custom" rows="2"
+                  placeholder="Masukkan teks running banner..."></textarea>
+
+                <!-- Live Preview Card -->
+                <div class="mt-2 p-2 px-3 rounded border"
+                  style="background: #f8fafc; border-color: #cbd5e1 !important;">
+                  <div class="fw-bold mb-1 d-flex align-items-center justify-content-between"
+                    style="font-size: 0.75rem; color: #0284c7;">
+                    <span><i class="fa-solid fa-eye me-1"></i> Pratinjau Tampilan Langsung (Live Preview):</span>
+                    <span class="badge bg-info text-dark" style="font-size: 0.65rem;">Real-time</span>
+                  </div>
+                  <div class="marquee-container mb-0"
+                    style="background: #ffffff; border-left: 3px solid #334155; padding: 6px 8px;">
+                    <div class="marquee-badge" style="font-size: 0.65rem; padding: 2px 5px;">
+                      <i class="fa-solid fa-bullhorn"></i> PENTING
+                    </div>
+                    <div class="marquee-content" style="white-space: normal; overflow: visible;">
+                      <span id="liveMarqueePreview"
+                        style="font-size: 0.78rem; font-weight: 600; color: #334155;"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Format Helper Toolbar Buttons -->
+                <div class="mt-2 p-2 rounded bg-light border">
+                  <div class="fw-bold mb-1" style="font-size: 0.76rem; color: #334155;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Format Cepat (Klik untuk
+                    menyisipkan ke teks):
+                  </div>
+                  <div class="format-chips-wrapper mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<strong>" data-tag-end="</strong>"><b>B</b> Tebal</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<em>" data-tag-end="</em>"><i>I</i> Miring</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<u>" data-tag-end="</u>"><u>U</u> Garis Bawah</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<span style='color: #dc2626; font-weight: 700;'>" data-tag-end="</span>">🔴
+                      Merah</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<span style='color: #d97706; font-weight: 700;'>" data-tag-end="</span>">🟡
+                      Kuning</button>
+                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="<span style='color: #16a34a; font-weight: 700;'>" data-tag-end="</span>">🟢
+                      Hijau</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="📢 " data-tag-end="">📢 Toa</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="⚠️ " data-tag-end="">⚠️ Peringatan</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-format-tag"
+                      data-tag-start="👉 " data-tag-end="">👉 Penunjuk</button>
+                  </div>
+                  <div class="p-2 rounded bg-white border"
+                    style="font-size: 0.72rem; color: #475569; line-height: 1.4;">
+                    <strong>📖 Referensi Kode Manual:</strong>
+                    <div class="row g-1 mt-1">
+                      <div class="col-6 col-md-3"><code>&lt;strong&gt;teks&lt;/strong&gt;</code> = <b>Tebal</b></div>
+                      <div class="col-6 col-md-3"><code>&lt;em&gt;teks&lt;/em&gt;</code> = <i>Miring</i></div>
+                      <div class="col-6 col-md-3"><code>&lt;u&gt;teks&lt;/u&gt;</code> = <u>Garis Bawah</u></div>
+                      <div class="col-6 col-md-3"><code>&lt;span style="color:red"&gt;teks&lt;/span&gt;</code> = <span
+                          class="text-danger fw-bold">Warna</span></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: EDIT TEMPLATE CHAT DISALIN -->
+          <div class="tab-pane fade" id="adminTabChat" role="tabpanel">
+            <div class="admin-card-section">
+              <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-comments text-success me-1"></i> Kustomisasi Template Chat Saat Disalin (Salin Filter)
+              </h5>
+
+              <div class="alert alert-info py-2 px-3 mb-3 fs-8" style="font-size: 0.76rem; background: #f0f9ff; border-color: #bae6fd; color: #0369a1;">
+                <i class="fa-solid fa-circle-info me-1"></i> Atur format teks yang akan otomatis tersalin ke clipboard saat pengunjung mengklik tombol <strong>"Salin Teks Filter"</strong> di website utama.
+              </div>
+
+              <!-- Sub-tabs for Versi Baru vs Versi Lama Template Chat -->
+              <ul class="nav nav-tabs mb-3" id="chatSubTab" role="tablist">
+                <li class="nav-item">
+                  <button class="nav-link active py-1 px-3 fs-8 fw-bold" id="chat-subtab-vb-btn" data-bs-toggle="tab" data-bs-target="#chat-subtab-vb" type="button">Versi Baru (New Viewer)</button>
+                </li>
+                <li class="nav-item">
+                  <button class="nav-link py-1 px-3 fs-8 fw-bold" id="chat-subtab-vl-btn" data-bs-toggle="tab" data-bs-target="#chat-subtab-vl" type="button">Versi Lama (Feedback Studio)</button>
+                </li>
+              </ul>
+
+              <div class="tab-content" id="chatSubTabContent">
+                
+                <!-- SUB-TAB VB -->
+                <div class="tab-pane fade show active" id="chat-subtab-vb" role="tabpanel">
+                  <div class="admin-field-group mb-2">
+                    <label class="admin-label" style="font-size: 0.78rem;">Template Chat Versi Baru:</label>
+                    <textarea id="adminChatTemplateVB" class="form-control admin-input-custom target-chat-textarea" rows="5" placeholder="Masukkan format template chat..."></textarea>
+                  </div>
+                </div>
+
+                <!-- SUB-TAB VL -->
+                <div class="tab-pane fade" id="chat-subtab-vl" role="tabpanel">
+                  <div class="admin-field-group mb-2">
+                    <label class="admin-label" style="font-size: 0.78rem;">Template Chat Versi Lama:</label>
+                    <textarea id="adminChatTemplateVL" class="form-control admin-input-custom target-chat-textarea" rows="5" placeholder="Masukkan format template chat..."></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Format Helper Toolbar for Chat Variables -->
+              <div class="mt-2 p-2 rounded bg-light border">
+                <div class="fw-bold mb-1" style="font-size: 0.76rem; color: #334155;">
+                  <i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Variabel Kode Cepat (Klik untuk menyisipkan ke template):
+                </div>
+                <div class="format-chips-wrapper mb-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{versi}"><code>{versi}</code> Nama Versi</button>
+                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{biblio}"><code>{biblio}</code> Exclude Bibliography</button>
+                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{quotes}"><code>{quotes}</code> Exclude Quotes</button>
+                  <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{cited}"><code>{cited}</code> Exclude Cited</button>
+                  <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{matches}"><code>{matches}</code> Exclude Matches</button>
+                  <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{waktu}"><code>{waktu}</code> Waktu/Tanggal</button>
+                  <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fs-8 fw-bold btn-chat-var-tag" data-var="{footer}"><code>{footer}</code> Footer Brand</button>
+                </div>
+
+                <!-- Live Preview Box for Chat -->
+                <div class="mt-2 p-2 px-3 rounded border" style="background: #e5ddd5; border-color: #cbd5e1 !important;">
+                  <div class="fw-bold mb-1 d-flex align-items-center justify-content-between" style="font-size: 0.75rem; color: #075e54;">
+                    <span><i class="fa-solid fa-eye me-1"></i> Pratinjau Tampilan Chat (WhatsApp Style Preview):</span>
+                    <span class="badge bg-success" style="font-size: 0.65rem;">WhatsApp Style</span>
+                  </div>
+                  <div class="p-2 rounded shadow-sm" style="background: #ffffff; border-radius: 8px; font-family: sans-serif; white-space: pre-wrap; font-size: 0.78rem; color: #111b21; line-height: 1.4;" id="liveChatPreview"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB 5: UNLIMITED FILE UPLOAD GAMBAR REPORT -->
+          <div class="tab-pane fade" id="adminTabImg" role="tabpanel">
+            <div class="admin-card-section">
+              <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-cloud-arrow-up text-danger me-1"></i> Galeri Contoh Gambar Laporan
+              </h5>
+
+              <!-- Versi Baru Upload Dropzone -->
+              <div class="admin-dropzone-box">
+                <label class="admin-label text-primary" style="font-size: 0.78rem;">
+                  <i class="fa-solid fa-image me-1"></i> Upload Gambar Versi Baru (New Viewer):
+                </label>
+                <input type="file" id="adminFileInputVB" accept="image/*" multiple
+                  class="form-control admin-input-custom mb-2">
+                <div id="thumbContainerVB" class="d-flex flex-wrap gap-2"></div>
+              </div>
+
+              <!-- Versi Lama Upload Dropzone -->
+              <div class="admin-dropzone-box mb-1">
+                <label class="admin-label text-secondary" style="font-size: 0.78rem;">
+                  <i class="fa-solid fa-image me-1"></i> Upload Gambar Versi Lama (Feedback Studio):
+                </label>
+                <input type="file" id="adminFileInputVL" accept="image/*" multiple
+                  class="form-control admin-input-custom mb-2">
+                <div id="thumbContainerVL" class="d-flex flex-wrap gap-2"></div>
+              </div>
+
+              <small class="text-muted mt-2 d-block" style="font-size: 0.74rem;">
+                *Pilih satu atau beberapa file gambar sekaligus dari perangkat Anda. Gambar tersimpan otomatis dan
+                tampil di slider saat tombol preview diklik.*
+              </small>
+            </div>
+          </div>
+
+          <!-- TAB 4: KEAMANAN PIN -->
+          <div class="tab-pane fade" id="adminTabPin" role="tabpanel">
+            <div class="admin-card-section">
+              <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-key text-warning me-1"></i> Ubah PIN Akses Admin
+              </h5>
+
+              <div class="admin-field-group text-center py-2">
+                <label class="admin-label justify-content-center" style="font-size: 0.78rem;">PIN Admin Baru:</label>
+                <input type="text" id="adminPinInput" class="form-control admin-input-custom text-center font-bold"
+                  style="letter-spacing: 5px; font-size: 1.1rem; max-width: 220px; margin: 0 auto; height: 38px;"
+                  placeholder="2001">
+                <small class="text-muted d-block mt-2" style="font-size: 0.74rem;">*PIN ini digunakan untuk login
+                  mengakses halaman Dashboard Admin ini.</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dashboard Action Controls -->
+        <div
+          class="dashboard-action-bar d-flex align-items-center justify-content-between mt-3 pt-3 border-top flex-wrap gap-2">
+          <button type="button" id="btnResetAdmin" class="btn btn-outline-danger px-3 font-bold rounded-3"
+            style="font-size: 0.78rem;">
+            <i class="fa-solid fa-rotate-left me-1"></i> Reset ke Default
+          </button>
+          <button type="button" id="btnSaveAdmin" class="btn btn-dark px-4 font-bold rounded-3 shadow-sm"
+            style="background: #334155; border: none; min-height: 38px; font-size: 0.82rem;">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Seluruh Pengaturan
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+
+  <!-- Admin Dashboard Logic Script -->
+  <script src="admin.js"></script>
+</body>
+
+</html>
