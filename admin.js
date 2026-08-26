@@ -184,6 +184,14 @@
         loadSettingsToUI();
       }
     });
+
+    window.addEventListener('focus', function () {
+      syncSettingsFromCloud(function () {
+        if (sessionStorage.getItem(AUTH_SESSION_KEY) === 'true') {
+          loadSettingsToUI();
+        }
+      });
+    });
   }
 
   function checkAuthStatus() {

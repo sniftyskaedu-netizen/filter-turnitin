@@ -197,10 +197,28 @@
     bindEvents();
     applyAdminSettingsToUI();
     renderApp();
+    
+    // Initial Cloud Sync
     syncSettingsFromCloud(function () {
       applyAdminSettingsToUI();
       renderApp();
     });
+
+    // Auto-sync when user switches back to browser tab
+    window.addEventListener('focus', function () {
+      syncSettingsFromCloud(function () {
+        applyAdminSettingsToUI();
+        renderApp();
+      });
+    });
+
+    // Background auto-sync interval (every 15 seconds)
+    setInterval(function () {
+      syncSettingsFromCloud(function () {
+        applyAdminSettingsToUI();
+        renderApp();
+      });
+    }, 15000);
   }
 
   function bindEvents() {
