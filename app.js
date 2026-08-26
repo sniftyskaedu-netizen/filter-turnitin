@@ -40,11 +40,11 @@
     marqueeText: '📢 Filter umum yang digunakan yaitu <strong>Filter Bibliography</strong>, sesuaikan Filter yang dipakai instansi masing-masing. ⚠️ <em>Beda filter = beda hasil.</em>',
     imgVersiBaruFiles: [],
     imgVersiLamaFiles: [],
-    gasWebAppUrl: ''
+    gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbxzDzlp3cM9KZ1LJXc2l6c8zskbDwL6y7HzmpUM9r-s4sIsIEhevZ1VJBUPZ3Si6K0w/exec'
   };
 
   // Default Google Apps Script Web App URL fallback
-  const DEFAULT_GAS_WEB_APP_URL = '';
+  const DEFAULT_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxzDzlp3cM9KZ1LJXc2l6c8zskbDwL6y7HzmpUM9r-s4sIsIEhevZ1VJBUPZ3Si6K0w/exec';
 
   function getGasUrl() {
     const current = getAdminSettings();

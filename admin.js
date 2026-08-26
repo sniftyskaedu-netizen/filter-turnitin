@@ -21,11 +21,11 @@
     },
     chatTemplateVB: `🔔 *PENGATURAN FILTER TURNITIN*\n\n🖥️ *Versi Turnitin:* {versi}\n📌 *Exclude Bibliography:* {biblio}\n📌 *Exclude Quoted Text:* {quotes}\n📌 *Exclude Cited Text:* {cited}\n📌 *Exclude Small Matches:* {matches}\n\n👉 *Catatan:* Mohon terapkan pengaturan filter di atas pada sistem Turnitin. Terima kasih!\n\n_ˢⁿⁱᶠᵗʸˢᵏᵃ ˣ ˢⁿⁱᶠᵗʸᵗᵒᵒˡˢ_`,
     chatTemplateVL: `🔔 *PENGATURAN FILTER TURNITIN*\n\n🖥️ *Versi Turnitin:* {versi}\n📌 *Exclude Quotes:* {quotes}\n📌 *Exclude Bibliography:* {biblio}\n📌 *Exclude Matches:* {matches}\n\n👉 *Catatan:* Mohon terapkan pengaturan filter di atas pada sistem Turnitin. Terima kasih!\n\n_ˢⁿⁱᶠᵗʸˢᵏᵃ ˣ ˢⁿⁱᶠᵗʸᵗᵒᵒˡˢ_`,
-    gasWebAppUrl: ''
+    gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbxzDzlp3cM9KZ1LJXc2l6c8zskbDwL6y7HzmpUM9r-s4sIsIEhevZ1VJBUPZ3Si6K0w/exec'
   };
 
   // Default Google Apps Script Web App URL fallback
-  const DEFAULT_GAS_WEB_APP_URL = '';
+  const DEFAULT_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxzDzlp3cM9KZ1LJXc2l6c8zskbDwL6y7HzmpUM9r-s4sIsIEhevZ1VJBUPZ3Si6K0w/exec';
 
   function getGasUrl() {
     const current = getAdminSettings();
