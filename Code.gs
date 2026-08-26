@@ -4,22 +4,180 @@
  */
 
 /**
- * Serves the HTML Web Application
+ * Serves the HTML Web Application or JSON API endpoints
  * @param {Object} e - Event object
- * @return {HtmlOutput} - HTML Service Output
+ * @return {HtmlOutput|TextOutput} - HTML Service Output or JSON Output
  */
 function doGet(e) {
-  var template = HtmlService.createTemplateFromFile('Index');
-  var output = template.evaluate()
-    .setTitle('Turnitin Filter Selector | Sniftyska x Sniftytools')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  return output;
+  var action = e && e.parameter && e.parameter.action;
+  if (action === 'getSettings') {
+    var settings = getAdminSettingsGAS() || {};
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      data: settings
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var page = e && e.parameter && e.parameter.page;
+  var templateName = (page === 'admin' || page === 'Admin') ? 'admin' : 'Index';
+
+  try {
+    var template = HtmlService.createTemplateFromFile(templateName);
+    return template.evaluate()
+      .setTitle(page === 'admin' ? 'Panel Admin | Turnitin Filter Selector' : 'Turnitin Filter Selector | Sniftyska x Sniftytools')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  } catch (err) {
+    var fallback = HtmlService.createTemplateFromFile('Index');
+    return fallback.evaluate()
+      .setTitle('Turnitin Filter Selector | Sniftyska x Sniftytools')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+}
+
+/**
+ * Handles HTTP POST requests for external web hosting (e.g. Vercel) or web app API calls
+ * @param {Object} e - Event object
+ * @return {TextOutput} - JSON Output
+ */
+function doPost(e) {
+  try {
+    var contents = (e && e.postData && e.postData.contents) ? e.postData.contents : null;
+    var data = {};
+    if (contents) {
+      try {
+        data = JSON.parse(contents);
+      } catch (err) {
+        data = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      data = e.parameter;
+    }
+
+    var action = data.action || data.type;
+
+    if (action === 'saveSettings') {
+      var resSave = saveAdminSettingsGAS(data.settings || data.payload || data);
+      return ContentService.createTextOutput(JSON.stringify(resSave))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === 'getSettings') {
+      var settings = getAdminSettingsGAS() || {};
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', data: settings }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (action === 'submitFilter') {
+      var resSubmit = submitTurnitinFilter(data.payload || data);
+      return ContentService.createTextOutput(JSON.stringify(resSubmit))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Action tidak dikenal' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Get Admin Settings stored centrally in PropertiesService / Spreadsheet
+ * @return {Object|null} Admin settings object or null
+ */
+function getAdminSettingsGAS() {
+  try {
+    // 1. Try ScriptProperties first
+    var props = PropertiesService.getScriptProperties();
+    var raw = props.getProperty('ADMIN_CONFIG');
+    if (raw) {
+      return JSON.parse(raw);
+    }
+
+    // 2. Fallback to Spreadsheet sheet 'AdminConfig'
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (ss) {
+      var sheet = ss.getSheetByName('AdminConfig');
+      if (sheet && sheet.getLastRow() >= 2) {
+        var val = sheet.getRange(2, 1).getValue();
+        if (val) {
+          return JSON.parse(val);
+        }
+      }
+    }
+  } catch (error) {
+    Logger.log('Error getAdminSettingsGAS: ' + error.toString());
+  }
+  return null;
+}
+
+/**
+ * Save Admin Settings centrally to ScriptProperties & Spreadsheet DB
+ * @param {Object} settings - New settings object to save
+ * @return {Object} Status response
+ */
+function saveAdminSettingsGAS(settings) {
+  var lock = LockService.getScriptLock();
+  try {
+    if (!lock.waitLock(10000)) {
+      return { status: 'error', message: 'Server sibuk. Silakan coba beberapa saat lagi.' };
+    }
+
+    if (!settings || typeof settings !== 'object') {
+      return { status: 'error', message: 'Payload settings tidak valid.' };
+    }
+
+    var jsonStr = JSON.stringify(settings);
+
+    // Save to ScriptProperties (if under limit of ~8KB)
+    var props = PropertiesService.getScriptProperties();
+    if (jsonStr.length < 8000) {
+      props.setProperty('ADMIN_CONFIG', jsonStr);
+    }
+
+    // Always save to Spreadsheet Sheet 'AdminConfig' as persistent master
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (ss) {
+      var sheet = ss.getSheetByName('AdminConfig');
+      if (!sheet) {
+        sheet = ss.insertSheet('AdminConfig');
+        sheet.appendRow(['ConfigData', 'LastUpdated']);
+        sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
+        sheet.setFrozenRows(1);
+      }
+      sheet.getRange(2, 1).setValue(jsonStr);
+      sheet.getRange(2, 2).setValue(new Date());
+
+      // Write Audit Log entry
+      var sheetAudit = ss.getSheetByName('AuditLog');
+      if (sheetAudit) {
+        sheetAudit.appendRow([
+          new Date(),
+          'ADMIN_SETTINGS_UPDATE',
+          'Admin Dashboard',
+          'SUCCESS',
+          'Admin memperbarui setelan filter / versi (VersiBaru: ' + (settings.enableVersiBaru ? 'ON' : 'OFF') + ', VersiLama: ' + (settings.enableVersiLama ? 'ON' : 'OFF') + ')'
+        ]);
+      }
+    }
+
+    return {
+      status: 'success',
+      message: 'Pengaturan Admin berhasil disimpan ke Cloud Database dan berlaku untuk seluruh perangkat.'
+    };
+  } catch (error) {
+    Logger.log('Error saveAdminSettingsGAS: ' + error.toString());
+    return { status: 'error', message: error.toString() };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
  * Setup Database sheets in the active spreadsheet if they don't exist
- * Creates 'PilihanFilter' and 'AuditLog' sheets with column headers
+ * Creates 'PilihanFilter', 'AuditLog', and 'AdminConfig' sheets with column headers
  */
 function setupDatabase() {
   try {
@@ -59,6 +217,15 @@ function setupDatabase() {
       ]);
       sheetAudit.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
       sheetAudit.setFrozenRows(1);
+    }
+
+    // 3. Setup Sheet AdminConfig
+    var sheetConfig = ss.getSheetByName('AdminConfig');
+    if (!sheetConfig) {
+      sheetConfig = ss.insertSheet('AdminConfig');
+      sheetConfig.appendRow(['ConfigData', 'LastUpdated']);
+      sheetConfig.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
+      sheetConfig.setFrozenRows(1);
     }
 
     Logger.log('Database berhasil disiapkan.');
@@ -164,3 +331,4 @@ function sanitizeInput_(input) {
   }
   return sanitized;
 }
+

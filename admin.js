@@ -20,7 +20,8 @@
       matches: 'Filter kecocokan frasa kecil'
     },
     chatTemplateVB: `🔔 *PENGATURAN FILTER TURNITIN*\n\n🖥️ *Versi Turnitin:* {versi}\n📌 *Exclude Bibliography:* {biblio}\n📌 *Exclude Quoted Text:* {quotes}\n📌 *Exclude Cited Text:* {cited}\n📌 *Exclude Small Matches:* {matches}\n\n👉 *Catatan:* Mohon terapkan pengaturan filter di atas pada sistem Turnitin. Terima kasih!\n\n_ˢⁿⁱᶠᵗʸˢᵏᵃ ˣ ˢⁿⁱᶠᵗʸᵗᵒᵒˡˢ_`,
-    chatTemplateVL: `🔔 *PENGATURAN FILTER TURNITIN*\n\n🖥️ *Versi Turnitin:* {versi}\n📌 *Exclude Quotes:* {quotes}\n📌 *Exclude Bibliography:* {biblio}\n📌 *Exclude Matches:* {matches}\n\n👉 *Catatan:* Mohon terapkan pengaturan filter di atas pada sistem Turnitin. Terima kasih!\n\n_ˢⁿⁱᶠᵗʸˢᵏᵃ ˣ ˢⁿⁱᶠᵗʸᵗᵒᵒˡˢ_`
+    chatTemplateVL: `🔔 *PENGATURAN FILTER TURNITIN*\n\n🖥️ *Versi Turnitin:* {versi}\n📌 *Exclude Quotes:* {quotes}\n📌 *Exclude Bibliography:* {biblio}\n📌 *Exclude Matches:* {matches}\n\n👉 *Catatan:* Mohon terapkan pengaturan filter di atas pada sistem Turnitin. Terima kasih!\n\n_ˢⁿⁱᶠᵗʸˢᵏᵃ ˣ ˢⁿⁱᶠᵗʸᵗᵒᵒˡˢ_`,
+    gasWebAppUrl: ''
   };
 
   function getAdminSettings() {
@@ -33,8 +34,103 @@
     }
   }
 
-  function saveAdminSettings(newSettings) {
+  function saveAdminSettingsLocally(newSettings) {
     localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(newSettings));
+    if (newSettings && newSettings.gasWebAppUrl) {
+      localStorage.setItem('gas_web_app_url', newSettings.gasWebAppUrl);
+    }
+  }
+
+  function saveAdminSettings(newSettings, callback) {
+    saveAdminSettingsLocally(newSettings);
+
+    // 1. Try google.script.run for Google Apps Script Web App environment
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(function (res) {
+          console.log('Settings synced to GAS Cloud:', res);
+          if (callback) callback(true, res);
+        })
+        .withFailureHandler(function (err) {
+          console.warn('Gagal sync ke GAS Cloud:', err);
+          if (callback) callback(false, err);
+        })
+        .saveAdminSettingsGAS(newSettings);
+      return;
+    }
+
+    // 2. Try fetch for Vercel / External Web Hosting
+    const gasUrl = newSettings.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (gasUrl) {
+      fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'saveSettings', settings: newSettings })
+      })
+        .then(res => res.json())
+        .then(resData => {
+          console.log('Settings synced via fetch GAS:', resData);
+          if (callback) callback(true, resData);
+        })
+        .catch(err => {
+          console.warn('Gagal sync via fetch GAS:', err);
+          if (callback) callback(false, err);
+        });
+      return;
+    }
+
+    if (callback) callback(true, null);
+  }
+
+  function syncSettingsFromCloud(onComplete) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(function (cloudSettings) {
+          if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
+            const current = getAdminSettings();
+            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            saveAdminSettingsLocally(merged);
+            if (onComplete) onComplete(merged);
+          } else {
+            if (onComplete) onComplete(getAdminSettings());
+          }
+        })
+        .withFailureHandler(function (err) {
+          console.warn('Error fetching cloud settings:', err);
+          if (onComplete) onComplete(getAdminSettings());
+        })
+        .getAdminSettingsGAS();
+      return;
+    }
+
+    const current = getAdminSettings();
+    const gasUrl = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (gasUrl) {
+      const fetchUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=getSettings&t=' + Date.now();
+      fetch(fetchUrl)
+        .then(res => res.json())
+        .then(resData => {
+          if (resData && (resData.status === 'success' || resData.data)) {
+            const cloudSettings = resData.data || resData;
+            if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
+              const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+              saveAdminSettingsLocally(merged);
+              if (onComplete) onComplete(merged);
+            } else {
+              if (onComplete) onComplete(current);
+            }
+          } else {
+            if (onComplete) onComplete(current);
+          }
+        })
+        .catch(err => {
+          console.warn('Fetch error cloud settings:', err);
+          if (onComplete) onComplete(current);
+        });
+      return;
+    }
+
+    if (onComplete) onComplete(current);
   }
 
   function escapeHtmlAttr(str) {
@@ -70,6 +166,7 @@
   const thumbContainerVB = document.getElementById('thumbContainerVB');
   const thumbContainerVL = document.getElementById('thumbContainerVL');
   const adminPinInput = document.getElementById('adminPinInput');
+  const adminGasWebAppUrl = document.getElementById('adminGasWebAppUrl');
   const btnSaveAdmin = document.getElementById('btnSaveAdmin');
   const btnResetAdmin = document.getElementById('btnResetAdmin');
   const btnBackToWebsite = document.getElementById('btnBackToWebsite');
@@ -82,6 +179,11 @@
   function init() {
     checkAuthStatus();
     bindEvents();
+    syncSettingsFromCloud(function () {
+      if (sessionStorage.getItem(AUTH_SESSION_KEY) === 'true') {
+        loadSettingsToUI();
+      }
+    });
   }
 
   function checkAuthStatus() {
@@ -260,6 +362,7 @@
     if (adminHeaderSubtitle) adminHeaderSubtitle.value = settings.headerSubtitle || defaultAdminSettings.headerSubtitle;
     if (adminMarqueeText) adminMarqueeText.value = settings.marqueeText || defaultAdminSettings.marqueeText;
     if (adminPinInput) adminPinInput.value = settings.adminPin || '2001';
+    if (adminGasWebAppUrl) adminGasWebAppUrl.value = settings.gasWebAppUrl || localStorage.getItem('gas_web_app_url') || '';
 
     if (adminChatTemplateVB) adminChatTemplateVB.value = settings.chatTemplateVB || defaultAdminSettings.chatTemplateVB;
     if (adminChatTemplateVL) adminChatTemplateVL.value = settings.chatTemplateVL || defaultAdminSettings.chatTemplateVL;
@@ -351,6 +454,7 @@
     const enableVB = adminEnableVB ? adminEnableVB.checked : true;
     const enableVL = adminEnableVL ? adminEnableVL.checked : true;
     const pinVal = adminPinInput ? adminPinInput.value.trim() : '2001';
+    const gasUrlVal = adminGasWebAppUrl ? adminGasWebAppUrl.value.trim() : '';
 
     if (!enableVB && !enableVL) {
       Swal.fire({
@@ -381,17 +485,27 @@
       marqueeText: adminMarqueeText ? (adminMarqueeText.value.trim() || defaultAdminSettings.marqueeText) : defaultAdminSettings.marqueeText,
       chatTemplateVB: adminChatTemplateVB ? (adminChatTemplateVB.value.trim() || defaultAdminSettings.chatTemplateVB) : defaultAdminSettings.chatTemplateVB,
       chatTemplateVL: adminChatTemplateVL ? (adminChatTemplateVL.value.trim() || defaultAdminSettings.chatTemplateVL) : defaultAdminSettings.chatTemplateVL,
+      gasWebAppUrl: gasUrlVal,
       imgVersiBaruFiles: tempImgFilesVB,
       imgVersiLamaFiles: tempImgFilesVL
     };
 
-    saveAdminSettings(newSettings);
-
     Swal.fire({
-      icon: 'success',
-      title: 'Pengaturan Disimpan!',
-      text: 'Semua perubahan berhasil disimpan dan diterapkan pada website utama.',
-      confirmButtonColor: '#334155'
+      title: 'Menyimpan Pengaturan...',
+      text: 'Menyimpan & mensinkronkan perubahan ke cloud database untuk seluruh perangkat...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    saveAdminSettings(newSettings, function (success, res) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Pengaturan Disimpan!',
+        text: 'Semua perubahan berhasil disimpan ke Cloud Database dan berlaku untuk seluruh perangkat.',
+        confirmButtonColor: '#334155'
+      });
     });
   }
 
@@ -407,13 +521,14 @@
       cancelButtonColor: '#64748b'
     }).then((result) => {
       if (result.isConfirmed) {
-        saveAdminSettings(defaultAdminSettings);
-        loadSettingsToUI();
-        Swal.fire({
-          icon: 'info',
-          title: 'Pengaturan Direset',
-          text: 'Semua data telah kembali ke setelan awal.',
-          confirmButtonColor: '#334155'
+        saveAdminSettings(defaultAdminSettings, function() {
+          loadSettingsToUI();
+          Swal.fire({
+            icon: 'info',
+            title: 'Pengaturan Direset',
+            text: 'Semua data telah kembali ke setelan awal pabrik.',
+            confirmButtonColor: '#334155'
+          });
         });
       }
     });
@@ -422,3 +537,4 @@
   document.addEventListener('DOMContentLoaded', init);
 
 })();
+

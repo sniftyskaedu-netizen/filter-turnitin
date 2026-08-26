@@ -39,7 +39,8 @@
     headerSubtitle: 'Sesuaikan opsi filter dengan regulasi instansi atau kampus masing-masing secara akurat dan praktis.',
     marqueeText: '📢 Filter umum yang digunakan yaitu <strong>Filter Bibliography</strong>, sesuaikan Filter yang dipakai instansi masing-masing. ⚠️ <em>Beda filter = beda hasil.</em>',
     imgVersiBaruFiles: [],
-    imgVersiLamaFiles: []
+    imgVersiLamaFiles: [],
+    gasWebAppUrl: ''
   };
 
   function getAdminSettings() {
@@ -52,8 +53,101 @@
     }
   }
 
-  function saveAdminSettings(newSettings) {
+  function saveAdminSettingsLocally(newSettings) {
     localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(newSettings));
+    if (newSettings && newSettings.gasWebAppUrl) {
+      localStorage.setItem('gas_web_app_url', newSettings.gasWebAppUrl);
+    }
+  }
+
+  function saveAdminSettings(newSettings, callback) {
+    saveAdminSettingsLocally(newSettings);
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(function (res) {
+          console.log('Settings synced to GAS Cloud:', res);
+          if (callback) callback(true, res);
+        })
+        .withFailureHandler(function (err) {
+          console.warn('Gagal sync ke GAS Cloud:', err);
+          if (callback) callback(false, err);
+        })
+        .saveAdminSettingsGAS(newSettings);
+      return;
+    }
+
+    const gasUrl = newSettings.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (gasUrl) {
+      fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'saveSettings', settings: newSettings })
+      })
+        .then(res => res.json())
+        .then(resData => {
+          console.log('Settings synced via fetch GAS:', resData);
+          if (callback) callback(true, resData);
+        })
+        .catch(err => {
+          console.warn('Gagal sync via fetch GAS:', err);
+          if (callback) callback(false, err);
+        });
+      return;
+    }
+
+    if (callback) callback(true, null);
+  }
+
+  function syncSettingsFromCloud(onComplete) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(function (cloudSettings) {
+          if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
+            const current = getAdminSettings();
+            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            saveAdminSettingsLocally(merged);
+            if (onComplete) onComplete(merged);
+          } else {
+            if (onComplete) onComplete(getAdminSettings());
+          }
+        })
+        .withFailureHandler(function (err) {
+          console.warn('Error fetching cloud settings:', err);
+          if (onComplete) onComplete(getAdminSettings());
+        })
+        .getAdminSettingsGAS();
+      return;
+    }
+
+    const current = getAdminSettings();
+    const gasUrl = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (gasUrl) {
+      const fetchUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=getSettings&t=' + Date.now();
+      fetch(fetchUrl)
+        .then(res => res.json())
+        .then(resData => {
+          if (resData && (resData.status === 'success' || resData.data)) {
+            const cloudSettings = resData.data || resData;
+            if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
+              const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+              saveAdminSettingsLocally(merged);
+              if (onComplete) onComplete(merged);
+            } else {
+              if (onComplete) onComplete(current);
+            }
+          } else {
+            if (onComplete) onComplete(current);
+          }
+        })
+        .catch(err => {
+          console.warn('Fetch error cloud settings:', err);
+          if (onComplete) onComplete(current);
+        });
+      return;
+    }
+
+    if (onComplete) onComplete(current);
   }
 
   function applyAdminSettingsToUI() {
@@ -98,6 +192,10 @@
     bindEvents();
     applyAdminSettingsToUI();
     renderApp();
+    syncSettingsFromCloud(function () {
+      applyAdminSettingsToUI();
+      renderApp();
+    });
   }
 
   function bindEvents() {
@@ -724,25 +822,32 @@
           headerTitle: document.getElementById('adminHeaderTitle').value.trim() || defaultAdminSettings.headerTitle,
           headerSubtitle: document.getElementById('adminHeaderSubtitle').value.trim() || defaultAdminSettings.headerSubtitle,
           marqueeText: document.getElementById('adminMarqueeText').value.trim() || defaultAdminSettings.marqueeText,
+          gasWebAppUrl: localStorage.getItem('gas_web_app_url') || '',
           imgVersiBaruFiles: tempImgFilesVB,
           imgVersiLamaFiles: tempImgFilesVL
         };
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        saveAdminSettings(result.value);
+        saveAdminSettings(result.value, function () {
+          applyAdminSettingsToUI();
+          renderApp();
+        });
         applyAdminSettingsToUI();
         renderApp();
         Swal.fire({
           toast: true,
           position: 'top',
           icon: 'success',
-          title: 'Pengaturan Admin Berhasil Disimpan!',
+          title: 'Pengaturan Admin Berhasil Disimpan & Disinkronkan!',
           showConfirmButton: false,
           timer: 2000
         });
       } else if (result.isDenied) {
-        saveAdminSettings(defaultAdminSettings);
+        saveAdminSettings(defaultAdminSettings, function () {
+          applyAdminSettingsToUI();
+          renderApp();
+        });
         applyAdminSettingsToUI();
         renderApp();
         Swal.fire({
@@ -1605,6 +1710,20 @@
           console.warn('Log GAS gagal (silent):', err);
         })
         .submitTurnitinFilter(payload);
+      return;
+    }
+
+    const current = getAdminSettings();
+    const gasUrl = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (gasUrl) {
+      fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'submitFilter', payload: payload })
+      })
+        .then(res => res.json())
+        .then(resData => console.log('Log GAS fetch sukses:', resData))
+        .catch(err => console.warn('Log GAS fetch gagal (silent):', err));
     }
   }
 
