@@ -118,6 +118,11 @@ function getAdminSettingsGAS() {
  * @param {Object} settings - New settings object to save
  * @return {Object} Status response
  */
+/**
+ * Save Admin Settings centrally to ScriptProperties & Spreadsheet DB
+ * @param {Object} settings - New settings object to save
+ * @return {Object} Status response
+ */
 function saveAdminSettingsGAS(settings) {
   var lock = LockService.getScriptLock();
   try {
@@ -129,15 +134,36 @@ function saveAdminSettingsGAS(settings) {
       return { status: 'error', message: 'Payload settings tidak valid.' };
     }
 
-    var jsonStr = JSON.stringify(settings);
+    // 1. Separate light text settings from heavy image Data URLs
+    var cleanSettings = {};
+    for (var key in settings) {
+      if (key !== 'imgVersiBaruFiles' && key !== 'imgVersiLamaFiles') {
+        cleanSettings[key] = settings[key];
+      }
+    }
 
-    // Save to ScriptProperties (if under limit of ~8KB)
+    // Safely attach images if under total character budget
+    cleanSettings.imgVersiBaruFiles = sanitizeImagesArray_(settings.imgVersiBaruFiles);
+    cleanSettings.imgVersiLamaFiles = sanitizeImagesArray_(settings.imgVersiLamaFiles);
+
+    var jsonStr = JSON.stringify(cleanSettings);
+
+    // 2. Always save Core Settings to ScriptProperties for high-speed cross-device retrieval
     var props = PropertiesService.getScriptProperties();
     if (jsonStr.length < 8000) {
       props.setProperty('ADMIN_CONFIG', jsonStr);
+    } else {
+      // If full JSON with images exceeds 8KB, store core text settings in ScriptProperties
+      var coreOnly = {};
+      for (var k in cleanSettings) {
+        if (k !== 'imgVersiBaruFiles' && k !== 'imgVersiLamaFiles') {
+          coreOnly[k] = cleanSettings[k];
+        }
+      }
+      props.setProperty('ADMIN_CONFIG', JSON.stringify(coreOnly));
     }
 
-    // Always save to Spreadsheet Sheet 'AdminConfig' as persistent master
+    // 3. Save to Spreadsheet Sheet 'AdminConfig' as persistent backup
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     if (ss) {
       var sheet = ss.getSheetByName('AdminConfig');
@@ -147,7 +173,20 @@ function saveAdminSettingsGAS(settings) {
         sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
         sheet.setFrozenRows(1);
       }
-      sheet.getRange(2, 1).setValue(jsonStr);
+
+      // Truncate safe string if total JSON > 48,000 chars to strictly prevent Google Sheets 50,000 char cell crashes
+      var safeCellStr = jsonStr;
+      if (safeCellStr.length > 48000) {
+        var fallbackSettings = {};
+        for (var fKey in cleanSettings) {
+          if (fKey !== 'imgVersiBaruFiles' && fKey !== 'imgVersiLamaFiles') {
+            fallbackSettings[fKey] = cleanSettings[fKey];
+          }
+        }
+        safeCellStr = JSON.stringify(fallbackSettings);
+      }
+
+      sheet.getRange(2, 1).setValue(safeCellStr);
       sheet.getRange(2, 2).setValue(new Date());
 
       // Write Audit Log entry
@@ -173,6 +212,27 @@ function saveAdminSettingsGAS(settings) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * Sanitizes base64 images array to prevent script/cell overflow
+ * @param {Array} imgArr - Raw images array
+ * @return {Array} Safe images array
+ */
+function sanitizeImagesArray_(imgArr) {
+  if (!Array.isArray(imgArr)) return [];
+  var result = [];
+  var totalLen = 0;
+  for (var i = 0; i < imgArr.length; i++) {
+    var str = String(imgArr[i]);
+    if (totalLen + str.length < 30000) {
+      result.push(str);
+      totalLen += str.length;
+    } else {
+      break;
+    }
+  }
+  return result;
 }
 
 /**
