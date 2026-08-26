@@ -530,22 +530,30 @@
       imgVersiLamaFiles: tempImgFilesVL
     };
 
-    Swal.fire({
-      title: 'Menyimpan Pengaturan...',
-      text: 'Menyimpan & mensinkronkan perubahan ke cloud database untuk seluruh perangkat...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+    // Button loading animation on the save button itself
+    if (btnSaveAdmin) {
+      btnSaveAdmin.disabled = true;
+      btnSaveAdmin.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Menyimpan...';
+    }
 
     saveAdminSettings(newSettings, function (success, res) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Pengaturan Disimpan!',
-        text: 'Semua perubahan berhasil disimpan ke Cloud Database dan berlaku untuk seluruh perangkat.',
-        confirmButtonColor: '#334155'
-      });
+      if (btnSaveAdmin) {
+        btnSaveAdmin.disabled = false;
+        btnSaveAdmin.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i> Simpan Seluruh Pengaturan';
+      }
+
+      // Cleanly close any previous dialogs
+      Swal.close();
+
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Pengaturan Disimpan!',
+          text: 'Semua perubahan berhasil disimpan ke Cloud Database dan berlaku untuk seluruh perangkat.',
+          confirmButtonColor: '#334155',
+          timer: 3000
+        });
+      }, 50);
     });
   }
 
