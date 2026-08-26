@@ -118,11 +118,6 @@ function getAdminSettingsGAS() {
  * @param {Object} settings - New settings object to save
  * @return {Object} Status response
  */
-/**
- * Save Admin Settings centrally to ScriptProperties & Spreadsheet DB
- * @param {Object} settings - New settings object to save
- * @return {Object} Status response
- */
 function saveAdminSettingsGAS(settings) {
   var lock = LockService.getScriptLock();
   try {
