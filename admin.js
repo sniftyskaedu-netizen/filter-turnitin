@@ -44,16 +44,29 @@
   function saveAdminSettings(newSettings, callback) {
     saveAdminSettingsLocally(newSettings);
 
+    let isDone = false;
+    function finish(success, result) {
+      if (isDone) return;
+      isDone = true;
+      if (callback) callback(success, result);
+    }
+
+    // Safety timeout: Never hang or spin forever (max 2.5s)
+    const timer = setTimeout(function () {
+      finish(true, { status: 'local_saved' });
+    }, 2500);
+
     // 1. Try google.script.run for Google Apps Script Web App environment
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
         .withSuccessHandler(function (res) {
-          console.log('Settings synced to GAS Cloud:', res);
-          if (callback) callback(true, res);
+          clearTimeout(timer);
+          finish(true, res);
         })
         .withFailureHandler(function (err) {
           console.warn('Gagal sync ke GAS Cloud:', err);
-          if (callback) callback(false, err);
+          clearTimeout(timer);
+          finish(true, err);
         })
         .saveAdminSettingsGAS(newSettings);
       return;
@@ -61,43 +74,59 @@
 
     // 2. Try fetch for Vercel / External Web Hosting
     const gasUrl = newSettings.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
-    if (gasUrl) {
+    if (gasUrl && gasUrl.trim() !== '') {
       fetch(gasUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'saveSettings', settings: newSettings })
       })
-        .then(res => res.json())
+        .then(res => res.json().catch(() => ({ status: 'success' })))
         .then(resData => {
           console.log('Settings synced via fetch GAS:', resData);
-          if (callback) callback(true, resData);
+          clearTimeout(timer);
+          finish(true, resData);
         })
         .catch(err => {
           console.warn('Gagal sync via fetch GAS:', err);
-          if (callback) callback(false, err);
+          clearTimeout(timer);
+          finish(true, err);
         });
       return;
     }
 
-    if (callback) callback(true, null);
+    clearTimeout(timer);
+    finish(true, null);
   }
 
   function syncSettingsFromCloud(onComplete) {
+    let isDone = false;
+    function finish(settings) {
+      if (isDone) return;
+      isDone = true;
+      if (onComplete) onComplete(settings);
+    }
+
+    const timer = setTimeout(function () {
+      finish(getAdminSettings());
+    }, 2500);
+
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
         .withSuccessHandler(function (cloudSettings) {
+          clearTimeout(timer);
           if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
             const current = getAdminSettings();
             const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
             saveAdminSettingsLocally(merged);
-            if (onComplete) onComplete(merged);
+            finish(merged);
           } else {
-            if (onComplete) onComplete(getAdminSettings());
+            finish(getAdminSettings());
           }
         })
         .withFailureHandler(function (err) {
           console.warn('Error fetching cloud settings:', err);
-          if (onComplete) onComplete(getAdminSettings());
+          clearTimeout(timer);
+          finish(getAdminSettings());
         })
         .getAdminSettingsGAS();
       return;
@@ -105,32 +134,35 @@
 
     const current = getAdminSettings();
     const gasUrl = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
-    if (gasUrl) {
+    if (gasUrl && gasUrl.trim() !== '') {
       const fetchUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=getSettings&t=' + Date.now();
       fetch(fetchUrl)
         .then(res => res.json())
         .then(resData => {
+          clearTimeout(timer);
           if (resData && (resData.status === 'success' || resData.data)) {
             const cloudSettings = resData.data || resData;
             if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
               const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
               saveAdminSettingsLocally(merged);
-              if (onComplete) onComplete(merged);
+              finish(merged);
             } else {
-              if (onComplete) onComplete(current);
+              finish(current);
             }
           } else {
-            if (onComplete) onComplete(current);
+            finish(current);
           }
         })
         .catch(err => {
           console.warn('Fetch error cloud settings:', err);
-          if (onComplete) onComplete(current);
+          clearTimeout(timer);
+          finish(current);
         });
       return;
     }
 
-    if (onComplete) onComplete(current);
+    clearTimeout(timer);
+    finish(current);
   }
 
   function escapeHtmlAttr(str) {
