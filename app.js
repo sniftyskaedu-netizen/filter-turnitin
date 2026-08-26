@@ -43,6 +43,19 @@
     gasWebAppUrl: ''
   };
 
+  // Default Google Apps Script Web App URL fallback
+  const DEFAULT_GAS_WEB_APP_URL = '';
+
+  function getGasUrl() {
+    const current = getAdminSettings();
+    const saved = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    if (saved && saved.trim() !== '') return saved.trim();
+    if (typeof DEFAULT_GAS_WEB_APP_URL !== 'undefined' && DEFAULT_GAS_WEB_APP_URL.trim() !== '') {
+      return DEFAULT_GAS_WEB_APP_URL.trim();
+    }
+    return '';
+  }
+
   function getAdminSettings() {
     try {
       const raw = localStorage.getItem(ADMIN_STORAGE_KEY);
@@ -89,7 +102,7 @@
       return;
     }
 
-    const gasUrl = newSettings.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    const gasUrl = getGasUrl();
     if (gasUrl && gasUrl.trim() !== '') {
       fetch(gasUrl, {
         method: 'POST',
@@ -149,7 +162,7 @@
     }
 
     const current = getAdminSettings();
-    const gasUrl = current.gasWebAppUrl || localStorage.getItem('gas_web_app_url');
+    const gasUrl = getGasUrl();
     if (gasUrl && gasUrl.trim() !== '') {
       const fetchUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=getSettings&t=' + Date.now();
       fetch(fetchUrl)

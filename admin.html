@@ -415,15 +415,16 @@
                   mengakses halaman Dashboard Admin ini.</small>
               </div>
 
-              <div class="admin-field-group border-top pt-3 mt-3 text-start">
-                <label class="admin-label text-dark fw-bold" style="font-size: 0.78rem;">
-                  <i class="fa-solid fa-cloud me-1 text-primary"></i> URL Google Apps Script Web App (Opsional untuk Sync Web Hosting/Vercel):
+              <div class="admin-field-group border-top pt-3 mt-3 text-start p-3 rounded" style="background: #f0f9ff; border: 1px solid #bae6fd !important;">
+                <label class="admin-label text-primary fw-bold mb-1" style="font-size: 0.82rem;">
+                  <i class="fa-solid fa-cloud-arrow-up me-1"></i> URL Web App Google Apps Script (Wajib Diisi untuk Multi-Device Sync / Vercel):
                 </label>
-                <input type="url" id="adminGasWebAppUrl" class="form-control admin-input-custom"
-                  placeholder="https://script.google.com/macros/s/.../exec">
-                <small class="text-muted d-block mt-1" style="font-size: 0.72rem; line-height: 1.35;">
-                  *Jika website ini di-host secara eksternal (misal: Vercel/Netlify), masukkan URL Web App Google Apps Script di atas agar perubahan Admin tersimpan dan tersinkronkan otomatis ke seluruh perangkat.*
-                </small>
+                <input type="url" id="adminGasWebAppUrl" class="form-control admin-input-custom bg-white border-primary"
+                  placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                <div class="mt-2 text-secondary" style="font-size: 0.74rem; line-height: 1.4;">
+                  <i class="fa-solid fa-circle-info text-primary me-1"></i> <strong>Mengapa URL ini wajib diisi?</strong><br>
+                  Website di-host di Vercel (`*.vercel.app`). Supaya saat Anda meng-On/Off-kan versi filter di Panel Admin, hasilnya <strong>otomatis tersimpan & berlaku untuk SELURUH HP/LAPTOP PENGUNJUNG LAIN</strong>, tempelkan URL Web App Apps Script Anda di atas sekali saja lalu klik <em>Simpan Seluruh Pengaturan</em>.
+                </div>
               </div>
             </div>
           </div>
