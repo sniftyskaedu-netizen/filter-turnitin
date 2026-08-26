@@ -3,7 +3,7 @@
 
   // Application State
   const state = {
-    isVersiBaru: true, // Default: Versi Baru (New Viewer)
+    isVersiBaru: false, // Default: Versi Lama (Feedback Studio)
     versiBaru: {
       bibliography: true,   // Default: Active
       quotedText: false,     // Default: Off
@@ -175,13 +175,18 @@
     if (btnVersiBaru) btnVersiBaru.style.display = settings.enableVersiBaru ? 'inline-block' : 'none';
     if (btnVersiLama) btnVersiLama.style.display = settings.enableVersiLama ? 'inline-block' : 'none';
 
-    // Auto enforcement if Versi Lama is disabled by Admin!
+    // Auto enforcement if Versi Lama or Versi Baru is disabled by Admin!
     if (!settings.enableVersiLama && !state.isVersiBaru) {
       state.isVersiBaru = true;
-      if (btnVersiBaru) btnVersiBaru.classList.add('active');
-      if (btnVersiLama) btnVersiLama.classList.remove('active');
     } else if (!settings.enableVersiBaru && state.isVersiBaru) {
       state.isVersiBaru = false;
+    }
+
+    // Sync button active classes
+    if (state.isVersiBaru) {
+      if (btnVersiBaru) btnVersiBaru.classList.add('active');
+      if (btnVersiLama) btnVersiLama.classList.remove('active');
+    } else {
       if (btnVersiLama) btnVersiLama.classList.add('active');
       if (btnVersiBaru) btnVersiBaru.classList.remove('active');
     }
