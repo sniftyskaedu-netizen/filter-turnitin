@@ -88,7 +88,8 @@
     // 2. Try fetch for Vercel / External Web Hosting
     const gasUrl = getGasUrl();
     if (gasUrl && gasUrl.trim() !== '') {
-      fetch(gasUrl, {
+      const postUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=saveSettings';
+      fetch(postUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'saveSettings', settings: newSettings })

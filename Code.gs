@@ -129,9 +129,12 @@ function getAdminSettingsGAS() {
  */
 function saveAdminSettingsGAS(settings) {
   var lock = LockService.getScriptLock();
+  var hasLock = false;
   try {
-    if (!lock.waitLock(10000)) {
-      return { status: 'error', message: 'Server sibuk. Silakan coba beberapa saat lagi.' };
+    try {
+      hasLock = lock.waitLock(3000);
+    } catch (eLock) {
+      hasLock = false;
     }
 
     if (!settings || typeof settings !== 'object') {
@@ -168,42 +171,46 @@ function saveAdminSettingsGAS(settings) {
     }
 
     // 3. Save to Spreadsheet Sheet 'AdminConfig' as persistent backup
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (ss) {
-      var sheet = ss.getSheetByName('AdminConfig');
-      if (!sheet) {
-        sheet = ss.insertSheet('AdminConfig');
-        sheet.appendRow(['ConfigData', 'LastUpdated']);
-        sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
-        sheet.setFrozenRows(1);
-      }
-
-      // Truncate safe string if total JSON > 48,000 chars to strictly prevent Google Sheets 50,000 char cell crashes
-      var safeCellStr = jsonStr;
-      if (safeCellStr.length > 48000) {
-        var fallbackSettings = {};
-        for (var fKey in cleanSettings) {
-          if (fKey !== 'imgVersiBaruFiles' && fKey !== 'imgVersiLamaFiles') {
-            fallbackSettings[fKey] = cleanSettings[fKey];
-          }
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      if (ss) {
+        var sheet = ss.getSheetByName('AdminConfig');
+        if (!sheet) {
+          sheet = ss.insertSheet('AdminConfig');
+          sheet.appendRow(['ConfigData', 'LastUpdated']);
+          sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#1e1b4b').setFontColor('#ffffff');
+          sheet.setFrozenRows(1);
         }
-        safeCellStr = JSON.stringify(fallbackSettings);
-      }
 
-      sheet.getRange(2, 1).setValue(safeCellStr);
-      sheet.getRange(2, 2).setValue(new Date());
+        // Truncate safe string if total JSON > 48,000 chars to strictly prevent Google Sheets 50,000 char cell crashes
+        var safeCellStr = jsonStr;
+        if (safeCellStr.length > 48000) {
+          var fallbackSettings = {};
+          for (var fKey in cleanSettings) {
+            if (fKey !== 'imgVersiBaruFiles' && fKey !== 'imgVersiLamaFiles') {
+              fallbackSettings[fKey] = cleanSettings[fKey];
+            }
+          }
+          safeCellStr = JSON.stringify(fallbackSettings);
+        }
 
-      // Write Audit Log entry
-      var sheetAudit = ss.getSheetByName('AuditLog');
-      if (sheetAudit) {
-        sheetAudit.appendRow([
-          new Date(),
-          'ADMIN_SETTINGS_UPDATE',
-          'Admin Dashboard',
-          'SUCCESS',
-          'Admin memperbarui setelan filter / versi (VersiBaru: ' + (settings.enableVersiBaru ? 'ON' : 'OFF') + ', VersiLama: ' + (settings.enableVersiLama ? 'ON' : 'OFF') + ')'
-        ]);
+        sheet.getRange(2, 1).setValue(safeCellStr);
+        sheet.getRange(2, 2).setValue(new Date());
+
+        // Write Audit Log entry
+        var sheetAudit = ss.getSheetByName('AuditLog');
+        if (sheetAudit) {
+          sheetAudit.appendRow([
+            new Date(),
+            'ADMIN_SETTINGS_UPDATE',
+            'Admin Dashboard',
+            'SUCCESS',
+            'Admin memperbarui setelan filter / versi (VersiBaru: ' + (settings.enableVersiBaru ? 'ON' : 'OFF') + ', VersiLama: ' + (settings.enableVersiLama ? 'ON' : 'OFF') + ')'
+          ]);
+        }
       }
+    } catch (eSheet) {
+      Logger.log('Spreadsheet update warning: ' + eSheet.toString());
     }
 
     return {
@@ -214,7 +221,9 @@ function saveAdminSettingsGAS(settings) {
     Logger.log('Error saveAdminSettingsGAS: ' + error.toString());
     return { status: 'error', message: error.toString() };
   } finally {
-    lock.releaseLock();
+    if (hasLock) {
+      try { lock.releaseLock(); } catch (eRel) {}
+    }
   }
 }
 
