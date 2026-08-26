@@ -27,12 +27,21 @@ function doGet(e) {
       .setTitle(page === 'admin' ? 'Panel Admin | Turnitin Filter Selector' : 'Turnitin Filter Selector | Sniftyska x Sniftytools')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  } catch (err) {
-    var fallback = HtmlService.createTemplateFromFile('Index');
-    return fallback.evaluate()
-      .setTitle('Turnitin Filter Selector | Sniftyska x Sniftytools')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  } catch (err1) {
+    try {
+      var templateLower = HtmlService.createTemplateFromFile(templateName.toLowerCase());
+      return templateLower.evaluate()
+        .setTitle(page === 'admin' ? 'Panel Admin | Turnitin Filter Selector' : 'Turnitin Filter Selector | Sniftyska x Sniftytools')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    } catch (err2) {
+      // Graceful fallback response when HTML files are not created in Apps Script (API Backend Mode)
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Turnitin Filter Selector Backend Database API is Active',
+        data: getAdminSettingsGAS() || {}
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
   }
 }
 
