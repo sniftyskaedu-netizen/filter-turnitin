@@ -405,31 +405,40 @@
             </div>
           </div>
 
-          <!-- TAB 4: KEAMANAN PIN -->
+          <!-- TAB 4: KEAMANAN PIN & SYSTEM CLOUD -->
           <div class="tab-pane fade" id="adminTabPin" role="tabpanel">
             <div class="admin-card-section">
               <h5 class="fw-bold mb-3 text-dark d-flex align-items-center gap-2" style="font-size: 0.9rem;">
-                <i class="fa-solid fa-key text-warning me-1"></i> Ubah PIN Akses Admin
+                <i class="fa-solid fa-key text-warning me-1"></i> Ubah PIN Akses Admin & Cloud Status
               </h5>
 
-              <div class="admin-field-group text-center py-2">
+              <div class="admin-field-group text-center py-2 mb-3">
                 <label class="admin-label justify-content-center" style="font-size: 0.78rem;">PIN Admin Baru:</label>
                 <input type="text" id="adminPinInput" class="form-control admin-input-custom text-center font-bold"
                   style="letter-spacing: 5px; font-size: 1.1rem; max-width: 220px; margin: 0 auto; height: 38px;"
                   placeholder="2001">
-                <small class="text-muted d-block mt-2" style="font-size: 0.74rem;">*PIN ini digunakan untuk login
-                  mengakses halaman Dashboard Admin ini.</small>
+                <small class="text-muted d-block mt-2" style="font-size: 0.74rem;">*PIN ini digunakan untuk login mengakses halaman Dashboard Admin ini.</small>
               </div>
 
-              <div class="admin-field-group border-top pt-3 mt-3 text-start p-3 rounded" style="background: #f0f9ff; border: 1px solid #bae6fd !important;">
-                <label class="admin-label text-primary fw-bold mb-1" style="font-size: 0.82rem;">
-                  <i class="fa-solid fa-cloud-arrow-up me-1"></i> URL Web App Google Apps Script (Wajib Diisi untuk Multi-Device Sync / Vercel):
-                </label>
-                <input type="url" id="adminGasWebAppUrl" class="form-control admin-input-custom bg-white border-primary"
-                  placeholder="https://script.google.com/macros/s/AKfycb.../exec">
-                <div class="mt-2 text-secondary" style="font-size: 0.74rem; line-height: 1.4;">
-                  <i class="fa-solid fa-circle-info text-primary me-1"></i> <strong>Mengapa URL ini wajib diisi?</strong><br>
-                  Website di-host di Vercel (`*.vercel.app`). Supaya saat Anda meng-On/Off-kan versi filter di Panel Admin, hasilnya <strong>otomatis tersimpan & berlaku untuk SELURUH HP/LAPTOP PENGUNJUNG LAIN</strong>, tempelkan URL Web App Apps Script Anda di atas sekali saja lalu klik <em>Simpan Seluruh Pengaturan</em>.
+              <!-- Useful Replacement: Supabase Cloud Database Status & Synchronization Card -->
+              <div class="admin-field-group border-top pt-3 mt-3 text-start p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0 !important;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                  <span class="badge bg-emerald-100 text-emerald-800 fw-bold px-2 py-1" style="background: #dcfce7; color: #15803d; font-size: 0.75rem; border: 1px solid #bbf7d0;">
+                    <i class="fa-solid fa-circle-check me-1"></i> Supabase Cloud DB Active
+                  </span>
+                  <span class="badge bg-blue-100 text-blue-800 fw-bold px-2 py-1" style="background: #dbeafe; color: #1e40af; font-size: 0.75rem; border: 1px solid #bfdbfe;">
+                    <i class="fa-solid fa-bolt me-1"></i> Realtime Broadcast ON
+                  </span>
+                </div>
+                <div class="text-slate-600" style="font-size: 0.76rem; line-height: 1.5; color: #475569;">
+                  <i class="fa-solid fa-database text-primary me-1"></i> <strong>Backend PostgreSQL Cloud Active:</strong><br>
+                  Aplikasi ini menggunakan <strong>Supabase Cloud Database (ap-southeast-1)</strong>. Setiap kali Anda mengubah PIN, judul, atau status On/Off versi, data otomatis tersimpan permanen di cloud dan langsung di-broadcast secara <em>real-time</em> ke seluruh pengunjung tanpa perlu server Apps Script.
+                </div>
+                <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <small class="text-muted font-mono" style="font-size: 0.7rem;"><i class="fa-solid fa-server me-1"></i> Ref: <code>znfoalvfqwkbenvxbyri</code></small>
+                  <button type="button" id="btnClearCloudCache" class="btn btn-sm btn-outline-primary fw-bold rounded-2 px-3 py-1" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Data Cloud
+                  </button>
                 </div>
               </div>
             </div>

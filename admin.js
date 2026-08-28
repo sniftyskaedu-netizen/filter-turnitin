@@ -423,14 +423,35 @@
       }
     });
 
-    // Save Admin Settings
+    // Save & Reset Buttons
     if (btnSaveAdmin) {
       btnSaveAdmin.addEventListener('click', handleSaveSettings);
     }
 
-    // Reset Admin Settings
     if (btnResetAdmin) {
       btnResetAdmin.addEventListener('click', handleResetSettings);
+    }
+
+    // Refresh Cloud Cache Control
+    const btnClearCloudCache = document.getElementById('btnClearCloudCache');
+    if (btnClearCloudCache) {
+      btnClearCloudCache.addEventListener('click', async function () {
+        btnClearCloudCache.disabled = true;
+        btnClearCloudCache.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Menyinkronkan...';
+        await syncSettingsFromCloud();
+        loadSettingsToUI();
+        btnClearCloudCache.disabled = false;
+        btnClearCloudCache.innerHTML = '<i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Data Cloud';
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'success',
+            title: 'Sinkronisasi Cloud Berhasil',
+            text: 'Data dari Supabase Cloud Database telah disinkronkan ke tampilan form.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      });
     }
   }
 
@@ -450,7 +471,6 @@
     if (adminHeaderSubtitle) adminHeaderSubtitle.value = settings.headerSubtitle || defaultAdminSettings.headerSubtitle;
     if (adminMarqueeText) adminMarqueeText.value = settings.marqueeText || defaultAdminSettings.marqueeText;
     if (adminPinInput) adminPinInput.value = settings.adminPin || '2001';
-    if (adminGasWebAppUrl) adminGasWebAppUrl.value = settings.gasWebAppUrl || localStorage.getItem('gas_web_app_url') || '';
 
     if (adminChatTemplateVB) adminChatTemplateVB.value = settings.chatTemplateVB || defaultAdminSettings.chatTemplateVB;
     if (adminChatTemplateVL) adminChatTemplateVL.value = settings.chatTemplateVL || defaultAdminSettings.chatTemplateVL;
@@ -542,7 +562,6 @@
     const enableVB = adminEnableVB ? adminEnableVB.checked : true;
     const enableVL = adminEnableVL ? adminEnableVL.checked : true;
     const pinVal = adminPinInput ? adminPinInput.value.trim() : '2001';
-    const gasUrlVal = adminGasWebAppUrl ? adminGasWebAppUrl.value.trim() : '';
 
     if (!enableVB && !enableVL) {
       Swal.fire({
@@ -573,7 +592,6 @@
       marqueeText: adminMarqueeText ? (adminMarqueeText.value.trim() || defaultAdminSettings.marqueeText) : defaultAdminSettings.marqueeText,
       chatTemplateVB: adminChatTemplateVB ? (adminChatTemplateVB.value.trim() || defaultAdminSettings.chatTemplateVB) : defaultAdminSettings.chatTemplateVB,
       chatTemplateVL: adminChatTemplateVL ? (adminChatTemplateVL.value.trim() || defaultAdminSettings.chatTemplateVL) : defaultAdminSettings.chatTemplateVL,
-      gasWebAppUrl: gasUrlVal,
       imgVersiBaruFiles: tempImgFilesVB,
       imgVersiLamaFiles: tempImgFilesVL
     };
