@@ -9,13 +9,13 @@
       quotedText: false,     // Default: Off
       citedText: false,      // Default: Off
       matchesMode: 'Off',    // 'Off' | 'Words' (HANYA Words di Versi Baru!)
-      customValue: '10'      // Default Words value
+      customValue: ''        // Empty default (biarkan kosong)
     },
     versiLama: {
       quotes: false,         // Default: Off
       bibliography: true,    // Default: Active
       matchesMode: 'Off',    // 'Off' | '%' | 'Words'
-      customValue: '1'       // Default value
+      customValue: ''        // Empty default (biarkan kosong)
     }
   };
 
@@ -1423,7 +1423,7 @@
               Minimum Words: <span id="iconVBStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : '8'}" placeholder="Angka">
+              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">Words</span>
             </div>
           </div>
@@ -1477,7 +1477,8 @@
     document.getElementById('btnVBPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      data.customValue = '8'; // Default awal 8 Words untuk Versi Baru
+      // Biarkan kosong jika belum diisi, jangan diisi otomatis angka 8
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
@@ -1570,7 +1571,7 @@
               ${data.matchesMode === '%' ? 'Minimum Persentase:' : 'Minimum Words:'} <span id="iconVLStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue || (data.matchesMode === '%' ? '1' : '10')}" placeholder="Angka">
+              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">${data.matchesMode === '%' ? '%' : 'Words'}</span>
             </div>
           </div>
@@ -1619,14 +1620,14 @@
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      data.customValue = '1'; // Default 1% untuk mode % di Versi Lama
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
     document.getElementById('btnVLPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      data.customValue = '10'; // Default 10 Words untuk mode Words di Versi Lama
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
