@@ -1488,6 +1488,17 @@
         data.customValue = e.target.value;
         updateVBStatusIcon(e.target.value);
       });
+      inputVBWords.addEventListener('blur', (e) => {
+        const valStr = e.target.value.trim();
+        if (valStr === '' && data.matchesMode !== 'Off') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Kolom Matches Wajib Diisi',
+            text: 'Kolom matches wajib diisi atau pilih opsi off.',
+            confirmButtonColor: '#334155'
+          });
+        }
+      });
     }
   }
 
@@ -1626,6 +1637,17 @@
         data.customValue = e.target.value;
         updateVLStatusIcon(e.target.value);
       });
+      inputVLValue.addEventListener('blur', (e) => {
+        const valStr = e.target.value.trim();
+        if (valStr === '' && data.matchesMode !== 'Off') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Kolom Matches Wajib Diisi',
+            text: 'Kolom matches wajib diisi atau pilih opsi off.',
+            confirmButtonColor: '#334155'
+          });
+        }
+      });
     }
   }
 
@@ -1730,16 +1752,18 @@
     // Validation for matches value
     if (currentData.matchesMode !== 'Off') {
       const inputEl = document.getElementById(isBaru ? 'inputVBWords' : 'inputVLValue');
-      const valStr = inputEl ? inputEl.value.trim() : '';
+      const valStr = inputEl ? inputEl.value.trim() : (currentData.customValue ? String(currentData.customValue).trim() : '');
       const val = parseInt(valStr, 10);
 
       // Jika kolom diisi kosong / tidak valid
       if (valStr === '' || isNaN(val) || val <= 0) {
         Swal.fire({
           icon: 'warning',
-          title: 'Nilai Filter Masih Kosong',
-          text: 'Silakan input angka atau pilih mode Off.',
+          title: 'Kolom Matches Wajib Diisi',
+          text: 'Kolom matches wajib diisi atau pilih opsi off.',
           confirmButtonColor: '#334155'
+        }).then(() => {
+          if (inputEl) inputEl.focus();
         });
         return;
       }
@@ -1752,6 +1776,8 @@
           title: 'Batas Minimum 8 Words',
           text: 'Untuk Versi Baru, Exclude Small Matches minimal diisi 8 Words.',
           confirmButtonColor: '#334155'
+        }).then(() => {
+          if (inputEl) inputEl.focus();
         });
         return;
       }
