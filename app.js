@@ -1490,17 +1490,6 @@
         data.customValue = e.target.value;
         updateVBStatusIcon(e.target.value);
       });
-      inputVBWords.addEventListener('blur', (e) => {
-        const valStr = e.target.value.trim();
-        if (valStr === '' && data.matchesMode !== 'Off') {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Kolom Matches Wajib Diisi',
-            text: 'Kolom matches wajib diisi atau pilih opsi off.',
-            confirmButtonColor: '#334155'
-          });
-        }
-      });
     }
   }
 
@@ -1643,23 +1632,6 @@
         data.customValue = e.target.value;
         updateVLStatusIcon(e.target.value);
       });
-      inputVLValue.addEventListener('blur', (e) => {
-        const valStr = e.target.value.trim();
-        if (valStr === '' && data.matchesMode !== 'Off') {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Kolom Matches Wajib Diisi',
-            text: 'Kolom matches wajib diisi atau pilih opsi off.',
-            confirmButtonColor: '#334155'
-          }).then(() => {
-            data.customValue = '';
-            if (inputVLValue) {
-              inputVLValue.value = '';
-              inputVLValue.focus();
-            }
-          });
-        }
-      });
     }
   }
 
@@ -1778,7 +1750,6 @@
           currentData.customValue = '';
           if (inputEl) {
             inputEl.value = '';
-            inputEl.focus();
           }
         });
         return;
@@ -1792,8 +1763,6 @@
           title: 'Batas Minimum 8 Words',
           text: 'Untuk Versi Baru, Exclude Small Matches minimal diisi 8 Words.',
           confirmButtonColor: '#334155'
-        }).then(() => {
-          if (inputEl) inputEl.focus();
         });
         return;
       }
