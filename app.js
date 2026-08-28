@@ -1612,11 +1612,8 @@
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      // Jika saat beralih ke % nilainya kosong/invalid, isi otomatis dengan default 1%
-      const valStr = data.customValue ? String(data.customValue).trim() : '';
-      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
-        data.customValue = '1';
-      }
+      // Saat beralih ke %, biarkan kolom tetap dikosongkan
+      data.customValue = '';
       renderApp();
     });
 
