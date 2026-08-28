@@ -543,11 +543,14 @@
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: '<i class="fa-solid fa-key me-1"></i> Masuk Dashboard',
-      cancelButtonText: 'Batal',
-      confirmButtonColor: '#334155',
+      confirmButtonText: '<i class="fa-solid fa-key me-1"></i> Masuk Dashboard Admin',
+      cancelButtonText: '<i class="fa-solid fa-xmark me-1"></i> Batal',
+      buttonsStyling: false,
       customClass: {
-        popup: 'swal2-popup-custom-mobile'
+        popup: 'swal2-popup-custom-mobile',
+        actions: 'swal2-actions-admin-auth',
+        confirmButton: 'btn-swal-confirm-admin',
+        cancelButton: 'btn-swal-cancel-admin'
       },
       didOpen: () => {
         const input = document.getElementById('swalPinInput');
