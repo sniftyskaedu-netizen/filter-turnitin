@@ -8,14 +8,15 @@
       bibliography: true,   // Default: Active
       quotedText: false,     // Default: Off
       citedText: false,      // Default: Off
-      matchesMode: 'Off',    // 'Off' | 'Words' (HANYA Words di Versi Baru!)
-      customValue: '10'      // Default Words value
+      matchesMode: 'Off',    // 'Off' | 'Words'
+      wordsValue: '8'        // Default Words value
     },
     versiLama: {
       quotes: false,         // Default: Off
       bibliography: true,    // Default: Active
       matchesMode: 'Off',    // 'Off' | '%' | 'Words'
-      customValue: '1'       // Default value
+      percentValue: '1',     // Default % value
+      wordsValue: '10'       // Default Words value
     }
   };
 
@@ -1423,7 +1424,7 @@
               Minimum Words: <span id="iconVBStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
+              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.wordsValue !== undefined ? data.wordsValue : '8'}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">Words</span>
             </div>
           </div>
@@ -1471,17 +1472,15 @@
     document.getElementById('btnVBPillOff').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Off';
+      // Reset ke default 8 saat Off diklik
+      data.wordsValue = '8';
       renderApp();
     });
 
     document.getElementById('btnVBPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      // Jika saat beralih/mengaktifkan nilai masih kosong/invalid, isi otomatis dengan default 8
-      const valStr = data.customValue ? String(data.customValue).trim() : '';
-      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
-        data.customValue = '8';
-      }
+      if (data.wordsValue === undefined) data.wordsValue = '8';
       renderApp();
     });
 
@@ -1489,7 +1488,7 @@
     if (inputVBWords) {
       updateVBStatusIcon(inputVBWords.value);
       inputVBWords.addEventListener('input', (e) => {
-        data.customValue = e.target.value;
+        data.wordsValue = e.target.value;
         updateVBStatusIcon(e.target.value);
       });
     }
@@ -1563,7 +1562,7 @@
               ${data.matchesMode === '%' ? 'Minimum Persentase:' : 'Minimum Words:'} <span id="iconVLStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
+              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.matchesMode === '%' ? (data.percentValue !== undefined ? data.percentValue : '1') : (data.wordsValue !== undefined ? data.wordsValue : '10')}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">${data.matchesMode === '%' ? '%' : 'Words'}</span>
             </div>
           </div>
@@ -1606,25 +1605,23 @@
     document.getElementById('btnVLPillOff').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Off';
+      // Reset nilai % dan Words ke default saat Off diklik
+      data.percentValue = '1';
+      data.wordsValue = '10';
       renderApp();
     });
 
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      // Saat beralih ke %, biarkan kolom tetap dikosongkan
-      data.customValue = '';
+      if (data.percentValue === undefined) data.percentValue = '1';
       renderApp();
     });
 
     document.getElementById('btnVLPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      // Jika saat beralih ke Words nilainya kosong/invalid, isi otomatis dengan default 10 Words
-      const valStr = data.customValue ? String(data.customValue).trim() : '';
-      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
-        data.customValue = '10';
-      }
+      if (data.wordsValue === undefined) data.wordsValue = '10';
       renderApp();
     });
 
@@ -1632,7 +1629,11 @@
     if (inputVLValue) {
       updateVLStatusIcon(inputVLValue.value);
       inputVLValue.addEventListener('input', (e) => {
-        data.customValue = e.target.value;
+        if (data.matchesMode === '%') {
+          data.percentValue = e.target.value;
+        } else {
+          data.wordsValue = e.target.value;
+        }
         updateVLStatusIcon(e.target.value);
       });
     }
@@ -1645,10 +1646,13 @@
       state.versiBaru.quotedText = false;
       state.versiBaru.citedText = false;
       state.versiBaru.matchesMode = 'Off';
+      state.versiBaru.wordsValue = '8';
     } else {
       state.versiLama.quotes = false;
       state.versiLama.bibliography = false;
       state.versiLama.matchesMode = 'Off';
+      state.versiLama.percentValue = '1';
+      state.versiLama.wordsValue = '10';
     }
 
     renderApp();
@@ -1688,7 +1692,7 @@
 
       let matchesText = '❌ Off';
       if (data.matchesMode === 'Words') {
-        const val = data.customValue || '8';
+        const val = data.wordsValue || '8';
         matchesText = `✅ Exclude < ${val} Words`;
       }
 
@@ -1707,10 +1711,10 @@
 
       let matchesText = '❌ Off';
       if (data.matchesMode === '%') {
-        const val = data.customValue || '1';
+        const val = data.percentValue || '1';
         matchesText = `✅ Exclude < ${val}%`;
       } else if (data.matchesMode === 'Words') {
-        const val = data.customValue || '10';
+        const val = data.wordsValue || '10';
         matchesText = `✅ Exclude < ${val} Words`;
       }
 
@@ -1739,7 +1743,8 @@
     // Validation for matches value
     if (currentData.matchesMode !== 'Off') {
       const inputEl = document.getElementById(isBaru ? 'inputVBWords' : 'inputVLValue');
-      const valStr = inputEl ? inputEl.value.trim() : (currentData.customValue ? String(currentData.customValue).trim() : '');
+      const activeVal = isBaru ? currentData.wordsValue : (currentData.matchesMode === '%' ? currentData.percentValue : currentData.wordsValue);
+      const valStr = inputEl ? inputEl.value.trim() : (activeVal !== undefined ? String(activeVal).trim() : '');
       const val = parseInt(valStr, 10);
 
       // Jika kolom diisi kosong / tidak valid
@@ -1750,7 +1755,12 @@
           text: 'Kolom matches wajib diisi atau pilih opsi off.',
           confirmButtonColor: '#334155'
         }).then(() => {
-          currentData.customValue = '';
+          if (isBaru) {
+            currentData.wordsValue = '';
+          } else {
+            if (currentData.matchesMode === '%') currentData.percentValue = '';
+            else currentData.wordsValue = '';
+          }
           if (inputEl) {
             inputEl.value = '';
           }
