@@ -140,6 +140,28 @@
       finish(getAdminSettings());
     }, 2500);
 
+    // 1. Primary Cloud Source: Supabase PostgreSQL Database
+    if (window.SupabaseAppBackend && typeof window.SupabaseAppBackend.fetchSettingsFromSupabase === 'function') {
+      window.SupabaseAppBackend.fetchSettingsFromSupabase()
+        .then(function (cloudSettings) {
+          clearTimeout(timer);
+          if (cloudSettings && typeof cloudSettings === 'object') {
+            const current = getAdminSettings();
+            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            saveAdminSettingsLocally(merged);
+            finish(merged);
+          } else {
+            finish(getAdminSettings());
+          }
+        })
+        .catch(function (err) {
+          console.warn('Gagal memuat setting dari Supabase:', err);
+          clearTimeout(timer);
+          finish(getAdminSettings());
+        });
+      return;
+    }
+
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
         .withSuccessHandler(function (cloudSettings) {
@@ -243,11 +265,23 @@
     applyAdminSettingsToUI();
     renderApp();
     
-    // Initial Cloud Sync
+    // Initial Supabase / Cloud Sync
     syncSettingsFromCloud(function () {
       applyAdminSettingsToUI();
       renderApp();
     });
+
+    // Real-time listener for Supabase changes (updates UI live when admin changes settings)
+    if (window.SupabaseAppBackend && typeof window.SupabaseAppBackend.subscribeSupabaseRealtime === 'function') {
+      window.SupabaseAppBackend.subscribeSupabaseRealtime(function (cloudSettings) {
+        if (cloudSettings) {
+          const merged = { ...defaultAdminSettings, ...getAdminSettings(), ...cloudSettings };
+          saveAdminSettingsLocally(merged);
+          applyAdminSettingsToUI();
+          renderApp();
+        }
+      });
+    }
 
     // Auto-sync when user switches back to browser tab
     window.addEventListener('focus', function () {

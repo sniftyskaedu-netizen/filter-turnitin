@@ -64,12 +64,25 @@
       if (callback) callback(success, result);
     }
 
-    // Safety timeout: Never hang or spin forever (max 2.5s)
     const timer = setTimeout(function () {
       finish(true, { status: 'local_saved' });
     }, 2500);
 
-    // 1. Try google.script.run for Google Apps Script Web App environment
+    // 1. Primary Backend: Supabase PostgreSQL Database
+    if (window.SupabaseAppBackend && typeof window.SupabaseAppBackend.saveSettingsToSupabase === 'function') {
+      window.SupabaseAppBackend.saveSettingsToSupabase(newSettings)
+        .then(function (res) {
+          clearTimeout(timer);
+          finish(res.success, res);
+        })
+        .catch(function (err) {
+          console.warn('Gagal menyimpan ke Supabase:', err);
+          clearTimeout(timer);
+          finish(true, err);
+        });
+      return;
+    }
+
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
         .withSuccessHandler(function (res) {
@@ -85,7 +98,6 @@
       return;
     }
 
-    // 2. Try fetch for Vercel / External Web Hosting
     const gasUrl = getGasUrl();
     if (gasUrl && gasUrl.trim() !== '') {
       const postUrl = gasUrl + (gasUrl.includes('?') ? '&' : '?') + 'action=saveSettings';
@@ -123,6 +135,28 @@
     const timer = setTimeout(function () {
       finish(getAdminSettings());
     }, 2500);
+
+    // 1. Primary Backend: Supabase PostgreSQL Database
+    if (window.SupabaseAppBackend && typeof window.SupabaseAppBackend.fetchSettingsFromSupabase === 'function') {
+      window.SupabaseAppBackend.fetchSettingsFromSupabase()
+        .then(function (cloudSettings) {
+          clearTimeout(timer);
+          if (cloudSettings && typeof cloudSettings === 'object') {
+            const current = getAdminSettings();
+            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            saveAdminSettingsLocally(merged);
+            finish(merged);
+          } else {
+            finish(getAdminSettings());
+          }
+        })
+        .catch(function (err) {
+          console.warn('Gagal memuat setting dari Supabase:', err);
+          clearTimeout(timer);
+          finish(getAdminSettings());
+        });
+      return;
+    }
 
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
