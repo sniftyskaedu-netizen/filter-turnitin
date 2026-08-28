@@ -353,6 +353,24 @@
           if (iconGuideChevron) {
             iconGuideChevron.className = 'fa-solid fa-chevron-down ms-1';
           }
+          // Otomatis menutup seluruh dropdown / accordion item yang sedang terbuka
+          const activeCollapses = guideSectionCard.querySelectorAll('.collapse.show');
+          activeCollapses.forEach(el => {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+              try {
+                const bsCollapse = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
+                bsCollapse.hide();
+              } catch (err) {}
+            }
+            el.classList.remove('show');
+            const targetBtn = guideSectionCard.querySelector(`[data-bs-target="#${el.id}"], [href="#${el.id}"]`);
+            if (targetBtn) {
+              targetBtn.classList.add('collapsed');
+              targetBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+          localStorage.removeItem('activeGuideVB');
+          localStorage.removeItem('activeGuideVL');
         } else {
           guideSectionCard.classList.add('show');
           if (iconGuideChevron) {
