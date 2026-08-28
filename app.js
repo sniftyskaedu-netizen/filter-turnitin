@@ -1423,7 +1423,7 @@
               Minimum Words: <span id="iconVBStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : '8'}" placeholder="Angka">
+              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">Words</span>
             </div>
           </div>
@@ -1477,9 +1477,8 @@
     document.getElementById('btnVBPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      if (!data.customValue) {
-        data.customValue = '8';
-      }
+      // Biarkan kosong sampai visitor mengisi manual
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
@@ -1561,7 +1560,7 @@
               ${data.matchesMode === '%' ? 'Minimum Persentase:' : 'Minimum Words:'} <span id="iconVLStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue || (data.matchesMode === '%' ? '1' : '10')}" placeholder="Angka">
+              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">${data.matchesMode === '%' ? '%' : 'Words'}</span>
             </div>
           </div>
@@ -1610,18 +1609,14 @@
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      if (!data.customValue) {
-        data.customValue = '1';
-      }
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
     document.getElementById('btnVLPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      if (!data.customValue) {
-        data.customValue = '10';
-      }
+      if (data.customValue === undefined) data.customValue = '';
       renderApp();
     });
 
