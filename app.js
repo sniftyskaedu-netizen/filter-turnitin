@@ -1362,7 +1362,7 @@
         <div class="filter-card-header">
           <div class="filter-info">
             <div class="filter-icon-box"><i class="fa-solid fa-book-bookmark"></i></div>
-            <div>
+            <div style="min-width: 0; flex: 1;">
               <div class="filter-title">Exclude Bibliography</div>
               <div class="filter-subtext">Sembunyikan Daftar Pustaka / Referensi</div>
             </div>
