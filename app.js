@@ -1477,8 +1477,11 @@
     document.getElementById('btnVBPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      // Biarkan kosong sampai visitor mengisi manual
-      if (data.customValue === undefined) data.customValue = '';
+      // Jika saat beralih/mengaktifkan nilai masih kosong/invalid, isi otomatis dengan default 8
+      const valStr = data.customValue ? String(data.customValue).trim() : '';
+      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
+        data.customValue = '8';
+      }
       renderApp();
     });
 
@@ -1609,14 +1612,22 @@
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      if (data.customValue === undefined) data.customValue = '';
+      // Jika saat beralih ke % nilainya kosong/invalid, isi otomatis dengan default 1%
+      const valStr = data.customValue ? String(data.customValue).trim() : '';
+      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
+        data.customValue = '1';
+      }
       renderApp();
     });
 
     document.getElementById('btnVLPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      if (data.customValue === undefined) data.customValue = '';
+      // Jika saat beralih ke Words nilainya kosong/invalid, isi otomatis dengan default 10 Words
+      const valStr = data.customValue ? String(data.customValue).trim() : '';
+      if (!valStr || isNaN(parseInt(valStr, 10)) || parseInt(valStr, 10) <= 0) {
+        data.customValue = '10';
+      }
       renderApp();
     });
 
