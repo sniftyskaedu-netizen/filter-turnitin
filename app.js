@@ -9,13 +9,13 @@
       quotedText: false,     // Default: Off
       citedText: false,      // Default: Off
       matchesMode: 'Off',    // 'Off' | 'Words' (HANYA Words di Versi Baru!)
-      customValue: ''        // Empty default (biarkan kosong)
+      customValue: '10'      // Default Words value
     },
     versiLama: {
       quotes: false,         // Default: Off
       bibliography: true,    // Default: Active
       matchesMode: 'Off',    // 'Off' | '%' | 'Words'
-      customValue: ''        // Empty default (biarkan kosong)
+      customValue: '1'       // Default value
     }
   };
 
@@ -264,7 +264,7 @@
     bindEvents();
     applyAdminSettingsToUI();
     renderApp();
-    
+
     // Initial Supabase / Cloud Sync
     syncSettingsFromCloud(function () {
       applyAdminSettingsToUI();
@@ -360,7 +360,7 @@
               try {
                 const bsCollapse = bootstrap.Collapse.getInstance(el) || new bootstrap.Collapse(el, { toggle: false });
                 bsCollapse.hide();
-              } catch (err) {}
+              } catch (err) { }
             }
             el.classList.remove('show');
             const targetBtn = guideSectionCard.querySelector(`[data-bs-target="#${el.id}"], [href="#${el.id}"]`);
@@ -1423,7 +1423,7 @@
               Minimum Words: <span id="iconVBStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
+              <input type="number" min="8" class="form-control form-control-custom" id="inputVBWords" value="${data.customValue !== undefined ? data.customValue : '8'}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">Words</span>
             </div>
           </div>
@@ -1477,8 +1477,9 @@
     document.getElementById('btnVBPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      // Biarkan kosong jika belum diisi, jangan diisi otomatis angka 8
-      if (data.customValue === undefined) data.customValue = '';
+      if (!data.customValue) {
+        data.customValue = '8';
+      }
       renderApp();
     });
 
@@ -1571,7 +1572,7 @@
               ${data.matchesMode === '%' ? 'Minimum Persentase:' : 'Minimum Words:'} <span id="iconVLStatus"></span>
             </label>
             <div class="input-group input-group-sm" style="width: 108px; flex-shrink: 0;">
-              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue !== undefined ? data.customValue : ''}" placeholder="Angka">
+              <input type="number" min="1" class="form-control form-control-custom" id="inputVLValue" value="${data.customValue || (data.matchesMode === '%' ? '1' : '10')}" placeholder="Angka">
               <span class="input-group-text bg-light font-bold py-0 px-2 fs-7" style="height: 28px;">${data.matchesMode === '%' ? '%' : 'Words'}</span>
             </div>
           </div>
@@ -1620,14 +1621,18 @@
     document.getElementById('btnVLPillPercent').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = '%';
-      if (data.customValue === undefined) data.customValue = '';
+      if (!data.customValue) {
+        data.customValue = '1';
+      }
       renderApp();
     });
 
     document.getElementById('btnVLPillWords').addEventListener('click', (e) => {
       e.stopPropagation();
       data.matchesMode = 'Words';
-      if (data.customValue === undefined) data.customValue = '';
+      if (!data.customValue) {
+        data.customValue = '10';
+      }
       renderApp();
     });
 
@@ -1646,6 +1651,12 @@
             title: 'Kolom Matches Wajib Diisi',
             text: 'Kolom matches wajib diisi atau pilih opsi off.',
             confirmButtonColor: '#334155'
+          }).then(() => {
+            data.customValue = '';
+            if (inputVLValue) {
+              inputVLValue.value = '';
+              inputVLValue.focus();
+            }
           });
         }
       });
@@ -1764,7 +1775,11 @@
           text: 'Kolom matches wajib diisi atau pilih opsi off.',
           confirmButtonColor: '#334155'
         }).then(() => {
-          if (inputEl) inputEl.focus();
+          currentData.customValue = '';
+          if (inputEl) {
+            inputEl.value = '';
+            inputEl.focus();
+          }
         });
         return;
       }
