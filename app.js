@@ -673,7 +673,7 @@
               </div>
               <div class="form-check form-switch mb-2">
                 <input class="form-check-input" type="checkbox" id="adminEnableVL" ${settings.enableVersiLama ? 'checked' : ''} style="cursor: pointer;">
-                <label class="form-check-label fw-bold" for="adminEnableVL" style="cursor: pointer;">Tampilkan Versi Lama (Feedback Studio)</label>
+                <label class="form-check-label fw-bold" for="adminEnableVL" style="cursor: pointer;">Tampilkan Versi Lama (Old Viewer)</label>
               </div>
               <div class="p-2 rounded bg-light border mt-3" style="font-size: 0.76rem; color: #64748b; line-height: 1.4;">
                 <i class="fa-solid fa-circle-info text-primary me-1"></i> <strong>Catatan:</strong> Jika salah satu versi di-off-kan, opsi tersebut otomatis disembunyikan dari layar pengunjung.
@@ -766,7 +766,7 @@
               <!-- Versi Lama Upload Dropzone -->
               <div class="admin-dropzone-box mb-1">
                 <label class="admin-label text-secondary">
-                  <i class="fa-solid fa-image"></i> Gambar Versi Lama (Feedback Studio):
+                  <i class="fa-solid fa-image"></i> Gambar Versi Lama (Old Viewer):
                 </label>
                 <input type="file" id="adminFileInputVL" accept="image/*" multiple class="form-control admin-input-custom mb-2">
                 <div id="thumbContainerVL" class="d-flex flex-wrap gap-2 mt-2"></div>
