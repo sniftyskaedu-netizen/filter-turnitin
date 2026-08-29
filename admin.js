@@ -47,7 +47,7 @@
     }
   }
 
-  function compressImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.78) {
+  function compressImageFile(file, maxWidth = 1000, maxHeight = 1000, quality = 0.72) {
     return new Promise((resolve, reject) => {
       if (!file || !file.type.startsWith('image/')) {
         return reject(new Error('File yang dipilih bukan berkas gambar valid.'));
@@ -194,8 +194,7 @@
         .then(function (cloudSettings) {
           clearTimeout(timer);
           if (cloudSettings && typeof cloudSettings === 'object') {
-            const current = getAdminSettings();
-            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            const merged = { ...defaultAdminSettings, ...cloudSettings };
             saveAdminSettingsLocally(merged);
             finish(merged);
           } else {
@@ -215,8 +214,7 @@
         .withSuccessHandler(function (cloudSettings) {
           clearTimeout(timer);
           if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
-            const current = getAdminSettings();
-            const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+            const merged = { ...defaultAdminSettings, ...cloudSettings };
             saveAdminSettingsLocally(merged);
             finish(merged);
           } else {
@@ -243,7 +241,7 @@
           if (resData && (resData.status === 'success' || resData.data)) {
             const cloudSettings = resData.data || resData;
             if (cloudSettings && typeof cloudSettings === 'object' && Object.keys(cloudSettings).length > 0) {
-              const merged = { ...defaultAdminSettings, ...current, ...cloudSettings };
+              const merged = { ...defaultAdminSettings, ...cloudSettings };
               saveAdminSettingsLocally(merged);
               finish(merged);
             } else {
@@ -315,14 +313,6 @@
       if (sessionStorage.getItem(AUTH_SESSION_KEY) === 'true') {
         loadSettingsToUI();
       }
-    });
-
-    window.addEventListener('focus', function () {
-      syncSettingsFromCloud(function () {
-        if (sessionStorage.getItem(AUTH_SESSION_KEY) === 'true') {
-          loadSettingsToUI();
-        }
-      });
     });
   }
 
