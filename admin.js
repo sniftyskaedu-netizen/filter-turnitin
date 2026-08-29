@@ -47,10 +47,62 @@
     }
   }
 
+  function compressImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.78) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        return reject(new Error('File yang dipilih bukan berkas gambar valid.'));
+      }
+      const reader = new FileReader();
+      reader.onerror = (err) => reject(err);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = (err) => reject(err);
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width / height > maxWidth / maxHeight) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to compressed JPEG data URL
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function saveAdminSettingsLocally(newSettings) {
-    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(newSettings));
+    try {
+      localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(newSettings));
+    } catch (e) {
+      console.warn('localStorage quota exceeded, saving lightweight cache without images locally:', e);
+      try {
+        const lightSettings = { ...newSettings, imgVersiBaruFiles: [], imgVersiLamaFiles: [] };
+        localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(lightSettings));
+      } catch (err2) {
+        console.error('Failed to update local storage:', err2);
+      }
+    }
     if (newSettings && newSettings.gasWebAppUrl) {
-      localStorage.setItem('gas_web_app_url', newSettings.gasWebAppUrl);
+      try {
+        localStorage.setItem('gas_web_app_url', newSettings.gasWebAppUrl);
+      } catch (e) {}
     }
   }
 
@@ -507,27 +559,32 @@
     liveChatPreview.textContent = preview;
   }
 
-  function handleImageFiles(files, type) {
+  async function handleImageFiles(files, type) {
     if (!files || files.length === 0) return;
 
-    let readCount = 0;
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = function (evt) {
+    const container = type === 'VB' ? thumbContainerVB : thumbContainerVL;
+    const fileInput = type === 'VB' ? adminFileInputVB : adminFileInputVL;
+
+    if (container) {
+      container.innerHTML += '<div class="w-100 text-primary fs-8 italic py-1"><i class="fa-solid fa-spinner fa-spin me-1"></i> Mengompresi & memproses gambar...</div>';
+    }
+
+    try {
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        const compressedDataUrl = await compressImageFile(file);
         if (type === 'VB') {
-          tempImgFilesVB.push(evt.target.result);
+          tempImgFilesVB.push(compressedDataUrl);
         } else {
-          tempImgFilesVL.push(evt.target.result);
+          tempImgFilesVL.push(compressedDataUrl);
         }
-        readCount++;
-        if (readCount === files.length) {
-          renderThumbnails();
-          if (type === 'VB' && adminFileInputVB) adminFileInputVB.value = '';
-          if (type === 'VL' && adminFileInputVL) adminFileInputVL.value = '';
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      }
+    } catch (err) {
+      console.error('Gagal mengompres gambar:', err);
+    } finally {
+      renderThumbnails();
+      if (fileInput) fileInput.value = '';
+    }
   }
 
   function renderThumbnails() {
